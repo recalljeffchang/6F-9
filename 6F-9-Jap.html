@@ -170,6 +170,27 @@
             font-size: 0.75rem;
             color: #64748b;
         }
+        .transit-connector .transit-route-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            padding: 2px 10px;
+            border-radius: 999px;
+            text-decoration: none;
+            white-space: nowrap;
+            margin-left: auto;
+            transition: all 0.15s;
+        }
+        .transit-connector .transit-route-btn:hover {
+            background: #1d4ed8;
+            color: white;
+            border-color: #1d4ed8;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -1184,6 +1205,9 @@
 
             container.innerHTML = '';
 
+            // Determine default origin for first item of each day
+            const hotelName = 'Haneda+Airport+Tokyo';
+
             scheduleData.forEach((item, index) => {
                 // Add transit connector before this item (if transit data exists)
                 if (item.transit) {
@@ -1191,11 +1215,23 @@
                     transitEl.className = 'transit-connector';
                     transitEl.style.animationDelay = `${index * 0.08 - 0.04}s`;
                     const transitNoteHtml = item.transit.note ? `<span class="transit-note">· ${item.transit.note}</span>` : '';
+
+                    // Build Google Maps Directions URL dynamically
+                    let originQuery = hotelName;
+                    if (index > 0) {
+                        const prevItem = scheduleData[index - 1];
+                        originQuery = (prevItem.mapUrl || '').replace('https://maps.google.com/?q=', '') || prevItem.loc.replace(/ /g, '+');
+                    }
+                    const destQuery = (item.mapUrl || '').replace('https://maps.google.com/?q=', '') || item.loc.replace(/ /g, '+');
+                    const travelMode = item.transit.method.includes('步行') ? 'walking' : (item.transit.method.includes('計程車') ? 'driving' : 'transit');
+                    const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originQuery}&destination=${destQuery}&travelmode=${travelMode}`;
+
                     transitEl.innerHTML = `
                         <span class="transit-icon">${item.transit.icon}</span>
                         <span class="transit-method">${item.transit.method}</span>
                         <span class="transit-duration">${item.transit.duration}</span>
                         ${transitNoteHtml}
+                        <a href="${directionsUrl}" target="_blank" rel="noopener noreferrer" class="transit-route-btn">🗺️ 查看路線</a>
                     `;
                     container.appendChild(transitEl);
                 }
