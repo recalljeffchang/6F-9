@@ -173,35 +173,79 @@
                 <!-- 去程 Timeline -->
                 <div class="mb-8">
                     <h3 class="text-lg font-bold text-sky-800 mb-4">📍 去程：週五 6/12</h3>
+
+                    <!-- 最晚出發倒推表 -->
+                    <div class="bg-sky-50 rounded-xl p-5 border border-sky-200 mb-6">
+                        <h4 class="font-bold text-sky-900 mb-3">⏰ 台中高鐵最晚出發時間（倒推計算）</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-sky-200">
+                                        <th class="text-left py-2 px-3 text-sky-800">航班</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">松山起飛</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">需到松山</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">需到台北車站</th>
+                                        <th class="text-left py-2 px-3 text-sky-800 font-black">🚄 台中最晚出發</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">抵達羽田</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-sky-100">
+                                        <td class="py-2.5 px-3 font-medium">BR190 長榮</td>
+                                        <td class="py-2.5 px-3">16:20</td>
+                                        <td class="py-2.5 px-3">14:20</td>
+                                        <td class="py-2.5 px-3">14:00</td>
+                                        <td class="py-2.5 px-3 font-black text-sky-900 text-base">🕐 13:00</td>
+                                        <td class="py-2.5 px-3 text-stone-500">20:20（日本）</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50 border border-emerald-200 rounded">
+                                        <td class="py-2.5 px-3 font-bold text-emerald-800">CI222 華航 <span class="badge-recommended">最晚</span></td>
+                                        <td class="py-2.5 px-3 font-bold text-emerald-800">18:05</td>
+                                        <td class="py-2.5 px-3">16:05</td>
+                                        <td class="py-2.5 px-3">15:45</td>
+                                        <td class="py-2.5 px-3 font-black text-emerald-900 text-base">🕐 14:50</td>
+                                        <td class="py-2.5 px-3 text-stone-500">22:05（日本）</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-xs text-sky-700 mt-3">
+                            💡 計算方式：起飛前 2hr 到松山報到 → 台北車站到松山計程車 15 分鐘 → 高鐵台中到台北約 50 分鐘。<br>
+                            ⚠️ 以上為極限時間，建議再提前 30 分鐘以預留緩衝。
+                        </p>
+                    </div>
+
+                    <!-- Visual Timeline (以推薦的 BR190 為例) -->
+                    <p class="text-sm text-stone-500 mb-3">▼ 以推薦航班 BR190 為例的時間軸</p>
                     <div class="flex items-start overflow-x-auto pb-4 gap-0">
                         <div class="timeline-step min-w-[90px]">
                             <div class="icon-circle">🚄</div>
                             <p class="font-bold text-sm mt-3">台中高鐵站</p>
-                            <p class="text-xs text-stone-400 mt-1">~14:00 出發</p>
+                            <p class="text-xs text-stone-400 mt-1">最晚 13:00</p>
                         </div>
                         <div class="timeline-connector"></div>
                         <div class="timeline-step min-w-[90px]">
                             <div class="icon-circle">🏙️</div>
                             <p class="font-bold text-sm mt-3">台北車站</p>
-                            <p class="text-xs text-stone-400 mt-1">~14:50 抵達</p>
+                            <p class="text-xs text-stone-400 mt-1">~13:50 抵達</p>
                         </div>
                         <div class="timeline-connector"></div>
                         <div class="timeline-step min-w-[90px]">
                             <div class="icon-circle">🛫</div>
                             <p class="font-bold text-sm mt-3">松山機場</p>
-                            <p class="text-xs text-stone-400 mt-1">16:00 報到</p>
+                            <p class="text-xs text-stone-400 mt-1">14:20 報到</p>
                         </div>
                         <div class="timeline-connector"></div>
                         <div class="timeline-step min-w-[90px]">
                             <div class="icon-circle">✈️</div>
-                            <p class="font-bold text-sm mt-3">飛行中</p>
-                            <p class="text-xs text-stone-400 mt-1">~3 小時</p>
+                            <p class="font-bold text-sm mt-3">BR190 起飛</p>
+                            <p class="text-xs text-stone-400 mt-1">16:20</p>
                         </div>
                         <div class="timeline-connector"></div>
                         <div class="timeline-step min-w-[90px]">
                             <div class="icon-circle">🛬</div>
                             <p class="font-bold text-sm mt-3">羽田機場</p>
-                            <p class="text-xs text-stone-400 mt-1">~20:20 到達</p>
+                            <p class="text-xs text-stone-400 mt-1">20:20（日本）</p>
                         </div>
                         <div class="timeline-connector"></div>
                         <div class="timeline-step min-w-[90px]">
