@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>東京 48H 快閃：家庭專屬行程規劃</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals (Stone/Amber/Sky) for a calm, premium feel. -->
+    <!-- Application Structure Plan: Dashboard layout with progressive disclosure. Users first select weather context (Indoor/Outdoor), which filters the plans. Clicking a plan reveals a detailed interactive itinerary and a radar chart visualizing the plan's attributes (Teen vs Elder appeal, etc.). This chunking prevents information overload while ensuring all details from the source report are easily accessible. -->
+    <!-- Visualization & Content Choices: Plan attributes -> Radar Chart (Chart.js) -> Compare plan profiles visually. Itineraries -> Dynamic text lists -> Easy reading of schedule. Weather options -> Toggle buttons -> Immediate context switching. Confirming NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        body {
+            background-color: #fafaf9;
+            color: #1c1917;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        .interactive-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .interactive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .selected-card {
+            border-color: #0284c7;
+            background-color: #f0f9ff;
+            box-shadow: 0 0 0 2px #0284c7;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-active {
+            border-bottom: 2px solid #0284c7;
+            color: #0284c7;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="max-w-6xl mx-auto px-4 py-8 md:py-12">
+        
+        <header class="mb-12 text-center fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-800 mb-4">✈️ 東京 48H 快閃：五人家族專屬決策面板</h1>
+            <p class="text-lg text-stone-600 max-w-3xl mx-auto leading-relaxed">
+                本應用程式將「東京 48H 家族動漫快閃計畫」報告轉化為互動式體驗。此報告專為一家五口（包含 50 歲長輩與 14-16 歲青少年）於 6 月梅雨季的週末快閃所設計。請根據抵達時的天氣狀況，探索並選擇最適合您家庭的黃金 48 小時行程。
+            </p>
+        </header>
+
+        <section class="mb-12 fade-in" style="animation-delay: 0.1s;">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-stone-800 mb-4">第一步：確認天氣狀況 ☁️</h2>
+                <p class="text-stone-600 mb-6">
+                    六月份為日本梅雨季。本區塊將行程分類為「室內雨天備案」與「室外晴天首選」。點擊下方按鈕以過濾適合當前天氣的行程方案。這將幫助您快速避開大雨或充分享受陽光。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <button id="btn-indoor" onclick="filterPlans('indoor')" class="interactive-card flex items-center justify-center gap-3 p-6 rounded-xl border-2 border-sky-200 bg-sky-50 text-sky-800 font-semibold text-lg hover:bg-sky-100 focus:outline-none">
+                        🏛️ 降雨機率 > 60%：選擇室內空調組
+                    </button>
+                    <button id="btn-outdoor" onclick="filterPlans('outdoor')" class="interactive-card flex items-center justify-center gap-3 p-6 rounded-xl border-2 border-amber-200 bg-amber-50 text-amber-800 font-semibold text-lg hover:bg-amber-100 focus:outline-none">
+                        🌳 天氣晴朗：選擇室外地標組
+                    </button>
+                </div>
+
+                <div id="plan-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                </div>
+            </div>
+        </section>
+
+        <section id="detail-section" class="mb-12 hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">第二步：探索行程細節與屬性分析 📊</h2>
+                <p class="text-stone-600 mb-8">
+                    在此區塊，您可以深入了解所選方案的具體時間表。左側詳細列出時間、地點及長輩休息/廁所提醒；右側雷達圖則量化了該方案在「青少年喜愛度」、「長輩舒適度」等關鍵指標上的表現，協助您判斷是否符合全家人的期待。
+                </p>
+
+                <div class="flex flex-col lg:flex-row gap-10">
+                    
+                    <div class="w-full lg:w-3/5">
+                        <div class="mb-6">
+                            <h3 id="detail-title" class="text-2xl font-bold text-stone-800 mb-2"></h3>
+                            <p id="detail-desc" class="text-stone-600 italic border-l-4 border-stone-300 pl-3"></p>
+                        </div>
+                        
+                        <div class="flex border-b border-stone-200 mb-6">
+                            <button id="tab-sat" onclick="switchDay('Sat')" class="py-2 px-6 text-lg font-medium text-stone-500 hover:text-stone-800 focus:outline-none tab-active">星期六 (Sat)</button>
+                            <button id="tab-sun" onclick="switchDay('Sun')" class="py-2 px-6 text-lg font-medium text-stone-500 hover:text-stone-800 focus:outline-none">星期日 (Sun)</button>
+                        </div>
+
+                        <div id="schedule-container" class="space-y-6">
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-2/5 flex flex-col items-center justify-start bg-stone-50 rounded-xl p-6 border border-stone-100">
+                        <h4 class="text-lg font-bold text-stone-700 mb-4 text-center">行程屬性分析 (滿分 10)</h4>
+                        <div class="chart-container">
+                            <canvas id="vibeChart"></canvas>
+                        </div>
+                        <p class="text-sm text-stone-500 mt-6 text-center">
+                            雷達圖展示該方案在不同需求上的平衡度。面積越大，代表該方案能兼顧越多綜合需求。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="fade-in">
+            <div class="bg-stone-800 text-stone-50 rounded-2xl shadow-sm p-6 md:p-8">
+                <h2 class="text-2xl font-bold mb-4 text-amber-400">💡 6/12 - 6/14 快閃執行錦囊</h2>
+                <p class="text-stone-300 mb-6">
+                    無論您最終選擇上述哪一種方案，以下三項核心策略是確保五人家庭（尤其是長輩）能在 48 小時內順利完成快閃的通用準則。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-stone-700 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🚕</div>
+                        <h3 class="text-xl font-bold mb-2">交通移動</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            五人家庭從羽田飯店出發，強烈推薦使用計程車或 Uber XL 到達第一個景點。用些許金錢換取免除轉車步行的體力消耗。
+                        </p>
+                    </div>
+                    <div class="bg-stone-700 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🍽️</div>
+                        <h3 class="text-xl font-bold mb-2">餐飲預約</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            方案 A、B、D 屬於人潮熱區。日本餐廳五人大桌較少，週六晚餐請務必在出發前完成 Google 網上訂位，避免長輩久候。
+                        </p>
+                    </div>
+                    <div class="bg-stone-700 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🌡️</div>
+                        <h3 class="text-xl font-bold mb-2">氣溫與體力對策</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            6 月室外濕氣重，長輩易疲勞。若執行室外方案 (D, E, F)，每兩小時請務必安排一次百貨公司或咖啡廳的「強制定點休息」。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const reportData = {
+            plans: {
+                A: {
+                    id: 'A',
+                    type: 'indoor',
+                    title: '方案 A：未來科技與極致美學',
+                    subtitle: '麻布台 & 澀谷',
+                    desc: '適合對視覺藝術、電競有興趣的青少年，以及喜愛高級建築與購物環境的長輩。',
+                    chartData: [9, 8, 8, 7, 9],
+                    schedule: {
+                        Sat: [
+                            { time: '10:30', item: 'teamLab Borderless', loc: 'teamLab Borderless Azabudai Hills', toilet: '商場廁所極為豪華，長輩可至中央廣場休息', note: '需預約。沉浸式光影展，青少年拍照首選。' },
+                            { time: '13:00', item: '麻布台之丘午餐', loc: 'Azabudai Hills', toilet: '各樓層皆有座位區', note: '東京新地標，餐廳等級高，環境極其舒適。' },
+                            { time: '15:30', item: 'RED° 東京鐵塔', loc: 'RED° TOKYO TOWER', toilet: '東京鐵塔內有無障礙設施', note: '日本最大電競樂園，青少年體驗 VR，長輩可登塔看景。' }
+                        ],
+                        Sun: [
+                            { time: '10:30', item: '品川水族館', loc: 'Maxell Aqua Park Shinagawa', toilet: '館內設有長椅，看秀免久站', note: '位於品川站旁，室內聲光水母秀震撼力十足。' },
+                            { time: '14:00', item: '品川 Wing 商場', loc: 'Wing Takanawa', toilet: '站前商場，廁所密度高', note: '回機場前最後掃貨，直通羽田機場單軌電車。' }
+                        ]
+                    }
+                },
+                B: {
+                    id: 'B',
+                    type: 'indoor',
+                    title: '方案 B：動畫根基與吉卜力迷蹤',
+                    subtitle: '三鷹 & 中野',
+                    desc: '適合喜愛宮崎駿與深度挖掘動漫歷史的家庭。',
+                    chartData: [7, 9, 7, 6, 8],
+                    schedule: {
+                        Sat: [
+                            { time: '10:00', item: '吉卜力美術館', loc: 'Ghibli Museum, Mitaka', toilet: '館內廁所精緻，園區有咖啡廳可久坐', note: '必須預約。青少年朝聖，長輩欣賞手工建築美學。' },
+                            { time: '14:00', item: '杉並動畫博物館', loc: 'Suginami Animation Museum', toilet: '室內小型場館，安靜舒適', note: '免費參觀，介紹日本動畫製作過程，環境寧靜。' },
+                            { time: '17:00', item: '吉祥寺商圈', loc: 'Kichijoji Sun Road', toilet: '商店街有公用廁所，百貨多', note: '藥妝、雜貨天堂，全家人都好逛。' }
+                        ],
+                        Sun: [
+                            { time: '11:00', item: '中野百老匯', loc: 'Nakano Broadway', toilet: '2 樓有舒適廁所，樓下有超市', note: '懷舊動漫聖地，二手公仔極多，長輩可逛民生商店。' },
+                            { time: '14:30', item: '新宿 3D 貓打卡', loc: 'Cross Shinjuku Vision', toilet: '新宿站各百貨廁所', note: '快速打卡 3D 巨貓，接著搭 N\'EX 回機場。' }
+                        ]
+                    }
+                },
+                C: {
+                    id: 'C',
+                    type: 'indoor',
+                    title: '方案 C：微縮世界與室內樂園',
+                    subtitle: '有明 & 台場',
+                    desc: '適合模型愛好者與想玩刺激室內遊戲的青少年。',
+                    chartData: [9, 7, 6, 8, 7],
+                    schedule: {
+                        Sat: [
+                            { time: '11:00', item: 'Small Worlds', loc: 'Small Worlds Tokyo', toilet: '館內有無障礙設施與休息沙發', note: '世界最大室內微縮模型，有 EVA 專區，長輩會驚嘆工藝。' },
+                            { time: '14:30', item: '東京 Joypolis', loc: 'Tokyo Joypolis', toilet: 'DECKS 商場內廁所豐富', note: 'SEGA 室內樂園，青少年尖叫首選。長輩可在外看海。' },
+                            { time: '18:00', item: '台場一丁目老街', loc: 'DECKS Tokyo Beach', toilet: '懷舊昭和風區，廁所好找', note: '復古雜貨與遊戲機，長輩能找回童心。' }
+                        ],
+                        Sun: [
+                            { time: '10:30', item: '東京一番街', loc: 'Tokyo Character Street', toilet: '東京車站內，廁所極多', note: '各大動漫品牌專賣店一站式購足，回台前最後採買。' },
+                            { time: '14:00', item: '大丸百貨休息', loc: 'DAIMARU Tokyo', toilet: '頂樓餐廳區有無敵景觀與大空間', note: '全家集合，準備前往羽田機場。' }
+                        ]
+                    }
+                },
+                D: {
+                    id: 'D',
+                    type: 'outdoor',
+                    title: '方案 D：潮流原宿與神宮森林',
+                    subtitle: '原宿 & 澀谷',
+                    desc: '經典的東京街頭文化之旅。',
+                    chartData: [9, 5, 4, 9, 10],
+                    schedule: {
+                        Sat: [
+                            { time: '09:30', item: '明治神宮', loc: 'Meiji Jingu', toilet: '進入森林前需在車站先上廁所', note: '巨型鳥居，長輩散步呼吸芬多精。' },
+                            { time: '11:30', item: '竹下通/裏原宿', loc: 'Takeshita Street', toilet: '建議去原宿車站或百貨公司廁所', note: '青少年潮流天堂，看浮誇甜點與動漫服飾。' },
+                            { time: '15:00', item: '澀谷十字路口', loc: 'Shibuya Crossing', toilet: '星巴克或附近百貨廁所', note: '全世界最忙路口，打卡必去。' }
+                        ],
+                        Sun: [
+                            { time: '10:30', item: 'SHIBUYA SKY', loc: 'SHIBUYA SKY', toilet: '頂樓風大，室內區有休息座位', note: '需預約。360 度觀景，看富士山與東京全景。' },
+                            { time: '14:00', item: '代代木公園散步', loc: 'Yoyogi Park', toilet: '公園廁所普通，建議在商場先上', note: '若體力尚可，可看日本街頭藝人表演。' }
+                        ]
+                    }
+                },
+                E: {
+                    id: 'E',
+                    type: 'outdoor',
+                    title: '方案 E：鋼彈鋼鐵與海風足湯',
+                    subtitle: '台場 & 豐洲',
+                    desc: '結合大型模型展示與最新江戶美食體驗。',
+                    chartData: [8, 8, 6, 7, 8],
+                    schedule: {
+                        Sat: [
+                            { time: '11:00', item: '獨角獸鋼彈展示', loc: 'Unicorn Gundam Statue', toilet: 'DiverCity 商場廁所非常方便', note: '1:1 震撼感。青少年必拍，每到整點有變身音樂秀。' },
+                            { time: '14:00', item: '台場海濱公園', loc: 'Odaiba Marine Park', toilet: '沿海步道平坦，設有許多長凳', note: '遠眺彩虹大橋，適合長輩慢走休息。' },
+                            { time: '17:00', item: '鋼彈基地商店', loc: 'The Gundam Base Tokyo', toilet: '位於商場 7 樓', note: '鋼彈模型最齊全的地方，青少年掃貨地。' }
+                        ],
+                        Sun: [
+                            { time: '10:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施非常新，廁所極乾淨', note: '江戶風美食街。長輩可泡免費足湯看海，青少年吃炸物。' },
+                            { time: '14:00', item: '台場購物廣場', loc: 'DiverCity Tokyo Plaza', toilet: '商場內備有充足休息區', note: '最後掃貨與用餐，隨後搭計程車回羽田。' }
+                        ]
+                    }
+                },
+                F: {
+                    id: 'F',
+                    type: 'outdoor',
+                    title: '方案 F：下町文化與未來水上船',
+                    subtitle: '淺草 & 隅田川',
+                    desc: '體驗日本傳統文化與最具特色的交通方式。',
+                    chartData: [6, 9, 8, 6, 9],
+                    schedule: {
+                        Sat: [
+                            { time: '10:00', item: '淺草寺/雷門', loc: 'Senso-ji', toilet: '觀光中心有乾淨廁所與電梯展望台', note: '經典地標，長輩求籤，青少年拍大燈籠。' },
+                            { time: '13:00', item: '淺草西參道商店街', loc: 'Nishisando Shopping Street', toilet: '木地板步道，對膝蓋友善', note: '有很多祭典小遊戲（撈金魚、射擊），青少年會喜歡。' },
+                            { time: '15:30', item: '隅田川未來船', loc: 'Tokyo Cruise Asakusa Pier', toilet: '船上有廁所，座位極舒適', note: '推薦「HIMIKO」或「EMERALDAS」，免走路直達台場。' }
+                        ],
+                        Sun: [
+                            { time: '10:30', item: '東京晴空塔', loc: 'Tokyo Skytree', toilet: '商場廁所多，指標清楚', note: '登頂看市景。下方 Solamachi 商場有極多動漫聯名店。' },
+                            { time: '14:00', item: '隅田公園', loc: 'Sumida Park', toilet: '河邊風景美，適合長輩小憩', note: '看著晴空塔喝咖啡，度過最後一個東京午後。' }
+                        ]
+                    }
+                }
+            }
+        };
+
+        let currentActivePlanId = null;
+        let currentDayTab = 'Sat';
+        let radarChartInstance = null;
+
+        function filterPlans(type) {
+            const btnIndoor = document.getElementById('btn-indoor');
+            const btnOutdoor = document.getElementById('btn-outdoor');
+            
+            if(type === 'indoor') {
+                btnIndoor.classList.add('ring-4', 'ring-sky-300', 'bg-sky-100');
+                btnOutdoor.classList.remove('ring-4', 'ring-amber-300', 'bg-amber-100');
+            } else {
+                btnOutdoor.classList.add('ring-4', 'ring-amber-300', 'bg-amber-100');
+                btnIndoor.classList.remove('ring-4', 'ring-sky-300', 'bg-sky-100');
+            }
+
+            const container = document.getElementById('plan-cards-container');
+            container.innerHTML = '';
+            container.classList.remove('hidden');
+
+            let firstPlanId = null;
+
+            for (const [id, plan] of Object.entries(reportData.plans)) {
+                if (plan.type === type) {
+                    if (!firstPlanId) firstPlanId = id;
+                    const card = document.createElement('div');
+                    card.className = `interactive-card cursor-pointer bg-white rounded-xl border border-stone-200 p-5 ${currentActivePlanId === id ? 'selected-card' : ''}`;
+                    card.id = `card-${id}`;
+                    card.onclick = () => selectPlan(id);
+                    
+                    const icon = type === 'indoor' ? '🏛️' : '🌳';
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">${icon}</span>
+                            <h3 class="font-bold text-lg text-stone-800">方案 ${id}</h3>
+                        </div>
+                        <p class="font-semibold text-stone-600 mb-2">${plan.subtitle}</p>
+                        <p class="text-sm text-stone-500 line-clamp-2">${plan.desc}</p>
+                    `;
+                    container.appendChild(card);
+                }
+            }
+
+            if (firstPlanId && (!currentActivePlanId || reportData.plans[currentActivePlanId].type !== type)) {
+                selectPlan(firstPlanId);
+            }
+        }
+
+        function selectPlan(id) {
+            currentActivePlanId = id;
+            
+            document.querySelectorAll('#plan-cards-container > div').forEach(el => {
+                el.classList.remove('selected-card');
+            });
+            const activeCard = document.getElementById(`card-${id}`);
+            if(activeCard) activeCard.classList.add('selected-card');
+
+            const section = document.getElementById('detail-section');
+            section.classList.remove('hidden');
+
+            const plan = reportData.plans[id];
+            document.getElementById('detail-title').innerText = plan.title;
+            document.getElementById('detail-desc').innerText = plan.desc;
+
+            renderSchedule();
+            updateChart(plan);
+            
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function switchDay(day) {
+            currentDayTab = day;
+            document.getElementById('tab-sat').classList.remove('tab-active');
+            document.getElementById('tab-sun').classList.remove('tab-active');
+            
+            if(day === 'Sat') document.getElementById('tab-sat').classList.add('tab-active');
+            if(day === 'Sun') document.getElementById('tab-sun').classList.add('tab-active');
+            
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            if(!currentActivePlanId) return;
+            const plan = reportData.plans[currentActivePlanId];
+            const scheduleData = plan.schedule[currentDayTab];
+            const container = document.getElementById('schedule-container');
+            
+            container.innerHTML = '';
+            
+            scheduleData.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'flex gap-4 fade-in';
+                el.style.animationDelay = `${index * 0.1}s`;
+                
+                el.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 text-right font-bold text-sky-700 pt-1">${item.time}</div>
+                        <div class="h-full w-px bg-stone-200 my-2"></div>
+                    </div>
+                    <div class="flex-1 bg-stone-50 rounded-xl p-4 border border-stone-100">
+                        <h4 class="text-lg font-bold text-stone-800 mb-1">${item.item}</h4>
+                        <div class="text-sm text-stone-500 mb-3 flex items-center gap-1">
+                            <span>🗺️</span> <span class="font-mono bg-stone-200 px-1 rounded">${item.loc}</span>
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-sm text-stone-700"><span class="font-semibold text-stone-800">📝 備註：</span>${item.note}</p>
+                            <p class="text-sm text-amber-700 bg-amber-50 p-2 rounded"><span class="font-semibold">🚻 長輩/廁所：</span>${item.toilet}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function updateChart(plan) {
+            const ctx = document.getElementById('vibeChart').getContext('2d');
+            const data = {
+                labels: ['👦 青少年喜愛度', '👵 長輩舒適度', '🚶 體力友善度', '🛍️ 購物便利性', '📸 拍照打卡度'],
+                datasets: [{
+                    label: `方案 ${plan.id} 屬性`,
+                    data: plan.chartData,
+                    backgroundColor: 'rgba(2, 132, 199, 0.2)',
+                    borderColor: 'rgba(2, 132, 199, 1)',
+                    pointBackgroundColor: 'rgba(2, 132, 199, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(2, 132, 199, 1)',
+                    borderWidth: 2
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0,0,0,0.1)' },
+                            grid: { color: 'rgba(0,0,0,0.1)' },
+                            pointLabels: {
+                                font: { size: 12, family: "'Segoe UI', Tahoma, sans-serif" },
+                                color: '#444'
+                            },
+                            ticks: {
+                                min: 0,
+                                max: 10,
+                                stepSize: 2,
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(28, 25, 23, 0.9)',
+                            padding: 12,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 14 }
+                        }
+                    }
+                }
+            };
+
+            if (radarChartInstance) {
+                radarChartInstance.data.datasets[0].data = plan.chartData;
+                radarChartInstance.data.datasets[0].label = `方案 ${plan.id} 屬性`;
+                radarChartInstance.update();
+            } else {
+                radarChartInstance = new Chart(ctx, config);
+            }
+        }
+    </script>
+</body>
+</html>
