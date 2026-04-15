@@ -135,6 +135,41 @@
         .hero-gradient {
             background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%);
         }
+        .transit-connector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            margin: 4px 0 4px 76px;
+            background: linear-gradient(90deg, #e0f2fe 0%, #f0f9ff 100%);
+            border-left: 3px solid #38bdf8;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.82rem;
+            color: #0369a1;
+            animation: fadeIn 0.3s ease-out forwards;
+            opacity: 0;
+        }
+        .transit-connector .transit-icon {
+            font-size: 1.2rem;
+            min-width: 24px;
+            text-align: center;
+        }
+        .transit-connector .transit-method {
+            font-weight: 600;
+        }
+        .transit-connector .transit-duration {
+            background: #0284c7;
+            color: white;
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .transit-connector .transit-note {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -617,35 +652,36 @@
     </div>
 
     <script>
-        // Image URLs for attractions (Unsplash CDN - stable, free to use)
+        // Image URLs for attractions (Wikimedia Commons - verified via API, all HTTP 200 confirmed)
+        const WM = (f, w=400) => `https://commons.wikimedia.org/w/thumb.php?f=${encodeURIComponent(f)}&w=${w}`;
         const IMG = {
-            teamlab: 'https://images.unsplash.com/photo-1582993728844-53be73d9d81e?w=400&h=250&fit=crop&auto=format',
-            azabudai: 'https://images.unsplash.com/photo-1480796927426-f609979314bd?w=400&h=250&fit=crop&auto=format',
-            tokyo_tower: 'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=400&h=250&fit=crop&auto=format',
-            roppongi: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=250&fit=crop&auto=format',
-            aquarium: 'https://images.unsplash.com/photo-1559827291-baf5e8f1b08c?w=400&h=250&fit=crop&auto=format',
-            ghibli: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&h=250&fit=crop&auto=format',
-            anime: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&h=250&fit=crop&auto=format',
-            street: 'https://images.unsplash.com/photo-1554797589-7241bb691973?w=400&h=250&fit=crop&auto=format',
-            gundam: 'https://images.unsplash.com/photo-1570521462033-3015e76e7432?w=400&h=250&fit=crop&auto=format',
-            odaiba: 'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=400&h=250&fit=crop&auto=format',
-            shibuya: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=400&h=250&fit=crop&auto=format',
-            meiji: 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=400&h=250&fit=crop&auto=format',
-            harajuku: 'https://images.unsplash.com/photo-1554797589-7241bb691973?w=400&h=250&fit=crop&auto=format',
-            asakusa: 'https://images.unsplash.com/photo-1570459027562-4a916cc6113f?w=400&h=250&fit=crop&auto=format',
-            skytree: 'https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?w=400&h=250&fit=crop&auto=format',
-            cruise: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400&h=250&fit=crop&auto=format',
-            food: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&h=250&fit=crop&auto=format',
-            shopping: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=250&fit=crop&auto=format',
-            airport: 'https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=400&h=250&fit=crop&auto=format',
-            park: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&h=250&fit=crop&auto=format',
-            cafe: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=250&fit=crop&auto=format',
-            arcade: 'https://images.unsplash.com/photo-1511882150382-421056c89033?w=400&h=250&fit=crop&auto=format',
-            miniature: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=250&fit=crop&auto=format',
-            nakano: 'https://images.unsplash.com/photo-1565618754154-c8011e5df2a6?w=400&h=250&fit=crop&auto=format',
-            toyosu: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&h=250&fit=crop&auto=format',
-            night_view: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=250&fit=crop&auto=format',
-            yoyogi: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&h=250&fit=crop&auto=format',
+            teamlab: WM('TeamLab Borderless Azabudai Hills.jpg'),
+            azabudai: WM('Azabudai Hills, opening day 41.jpg'),
+            tokyo_tower: WM('Tokyo Tower, Minato City.jpg'),
+            roppongi: WM('Tokyo Tower, Minato City.jpg'),
+            aquarium: WM('Aqua park shinagawa Wonder Tube.jpg'),
+            ghibli: WM('Ghibli Museum, Mitaka, Tokyo, 20240823 1131 5545.jpg'),
+            anime: WM('Suginami kaikan suginami animation museum 2009.JPG'),
+            street: WM('Kichijoji N-gate Square.JPG'),
+            gundam: WM('Life-Sized Unicorn Gundam Statue.jpg'),
+            odaiba: WM('Rainbow Bridge, Tokyo, South view from Odaiba 20190419 1.jpg'),
+            shibuya: WM('Tokyo Shibuya Scramble Crossing 2018-10-09.jpg'),
+            meiji: WM('Meiji-Jingu-Shrine-03.jpg'),
+            harajuku: WM('Takeshita Street.jpg'),
+            asakusa: WM('Kaminarimon1.jpg'),
+            skytree: WM('Worm\'s-eye view of Tokyo Skytree with vertical symmetry impression, a sunny day, in Japan.jpg'),
+            cruise: WM('"Himiko" Tokyo Cruise Boat @ Sumida River @ Tsukishima Island @ Tokyo (9493079356).jpg'),
+            food: WM('Tendon in Japanese Curry Sauce.JPG'),
+            shopping: WM('Nakamise1411.jpg'),
+            airport: WM('Haneda-Airport-T1-T2-STA Keikyu-Gate.jpg'),
+            park: WM('Shinjuku Gyoen National Garden and NTT DoCoMo Yoyogi Building, Tokyo, Japan.jpg'),
+            cafe: WM('Street crowd reflecting in the polyhedral mirrors of the station Tokyu Plaza Omotesando, Harajuku, Tokyo, Japan.jpg'),
+            arcade: WM('Sega Joypolis Odaiba.jpg'),
+            miniature: WM('SMALL WORLDS Miniature Museum 01.jpg'),
+            nakano: WM('Nakano broadway entrance.JPG'),
+            toyosu: WM('Nakamise1411.jpg'),
+            night_view: WM('Tokyo Tower, Minato City.jpg'),
+            yoyogi: WM('Shinjuku Gyoen National Garden and NTT DoCoMo Yoyogi Building, Tokyo, Japan.jpg'),
         };
 
         const reportData = {
@@ -660,15 +696,15 @@
                     chartData: [9, 8, 7, 7, 9, 8],
                     schedule: {
                         Sat: [
-                            { time: '10:00', item: 'teamLab Borderless', loc: 'Azabudai Hills', toilet: '商場廁所極為豪華，長輩可至中央廣場休息', note: '需預約！沉浸式光影展，青少年拍照首選，長輩也會震撼。', img: IMG.teamlab },
-                            { time: '13:00', item: '麻布台之丘午餐', loc: 'Azabudai Hills 餐廳層', toilet: '各樓層皆有座位區與豪華洗手間', note: '東京新地標，餐廳等級高，環境極舒適。建議提前訂位。', img: IMG.azabudai },
-                            { time: '15:00', item: 'RED° 東京鐵塔', loc: 'RED° TOKYO TOWER', toilet: '東京鐵塔內設有無障礙設施', note: '日本最大電競樂園，青少年體驗 VR，長輩可登塔觀景。', img: IMG.tokyo_tower },
-                            { time: '18:00', item: '六本木晚餐 & 夜散步', loc: '六本木 Hills 周邊', toilet: '六本木 Hills 各樓層廁所充足', note: '高級餐廳群，夜景漂亮。長輩用餐後可在展望台休息。', img: IMG.roppongi }
+                            { time: '10:00', item: 'teamLab Borderless', loc: 'Azabudai Hills', toilet: '商場廁所極為豪華，長輩可至中央廣場休息', note: '需預約！沉浸式光影展，青少年拍照首選，長輩也會震撼。', img: IMG.teamlab, transit: { icon: '🚝', method: '東京モノレール → 日比谷線', duration: '約 40 分鐘', note: '羽田搭東京單軌到浜松町，轉日比谷線至神谷町站' } },
+                            { time: '13:00', item: '麻布台之丘午餐', loc: 'Azabudai Hills 餐廳層', toilet: '各樓層皆有座位區與豪華洗手間', note: '東京新地標，餐廳等級高，環境極舒適。建議提前訂位。', img: IMG.azabudai, transit: { icon: '🚶', method: '步行（同棟商場內）', duration: '約 3 分鐘', note: '同在麻布台之丘，電梯直達餐廳樓層' } },
+                            { time: '15:00', item: 'RED° 東京鐵塔', loc: 'RED° TOKYO TOWER', toilet: '東京鐵塔內設有無障礙設施', note: '日本最大電競樂園，青少年體驗 VR，長輩可登塔觀景。', img: IMG.tokyo_tower, transit: { icon: '🚶', method: '步行', duration: '約 12 分鐘', note: '沿櫻田通直行即到東京鐵塔' } },
+                            { time: '18:00', item: '六本木晚餐 & 夜散步', loc: '六本木 Hills 周邊', toilet: '六本木 Hills 各樓層廁所充足', note: '高級餐廳群，夜景漂亮。長輩用餐後可在展望台休息。', img: IMG.roppongi, transit: { icon: '🚕', method: '計程車', duration: '約 5 分鐘', note: '東京鐵塔到六本木 Hills 步行約 15 分鐘，建議搭計程車' } }
                         ],
                         Sun: [
-                            { time: '09:00', item: '品川水族館', loc: 'Maxell Aqua Park Shinagawa', toilet: '館內設有長椅休息區，看秀免久站', note: '品川站旁，室內聲光水母秀。離羽田僅 15 分鐘電車。', img: IMG.aquarium },
-                            { time: '11:00', item: '品川 Wing 快速掃貨', loc: 'Wing Takanawa', toilet: '站前商場，廁所密度高', note: '最後採買藥妝零食。完成後直接搭京急線回羽田。', img: IMG.shopping },
-                            { time: '12:00', item: '🚕 前往羽田機場', loc: '品川 → 羽田（京急線 15 分）', toilet: '羽田機場國際航廈設施完善', note: '品川離羽田超近！搭京急線或計程車皆可，輕鬆趕飛機。', img: IMG.airport }
+                            { time: '09:00', item: '品川水族館', loc: 'Maxell Aqua Park Shinagawa', toilet: '館內設有長椅休息區，看秀免久站', note: '品川站旁，室內聲光水母秀。離羽田僅 15 分鐘電車。', img: IMG.aquarium, transit: { icon: '🚝', method: '京急線', duration: '約 15 分鐘', note: '從羽田機場搭京急線直達品川站' } },
+                            { time: '11:00', item: '品川 Wing 快速掃貨', loc: 'Wing Takanawa', toilet: '站前商場，廁所密度高', note: '最後採買藥妝零食。完成後直接搭京急線回羽田。', img: IMG.shopping, transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '水族館出來過馬路即到 Wing Takanawa' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '品川 → 羽田（京急線 15 分）', toilet: '羽田機場國際航廈設施完善', note: '品川離羽田超近！搭京急線或計程車皆可，輕鬆趕飛機。', img: IMG.airport, transit: { icon: '🚃', method: '京急線', duration: '約 15 分鐘', note: '品川站搭京急線直達羽田機場國際線航廈' } }
                         ]
                     }
                 },
@@ -682,15 +718,15 @@
                     chartData: [7, 9, 5, 6, 8, 4],
                     schedule: {
                         Sat: [
-                            { time: '10:00', item: '吉卜力美術館', loc: 'Ghibli Museum, Mitaka', toilet: '館內廁所精緻，園區有咖啡廳可久坐', note: '必須預約搶票！青少年朝聖地，長輩欣賞手工建築美學。', img: IMG.ghibli },
-                            { time: '13:30', item: '吉祥寺午餐', loc: 'Kichijoji 商圈', toilet: '商店街內有公用廁所及百貨廁所', note: '在地美食天堂。推薦「いせや」烤雞串或「小ざさ」羊羹。', img: IMG.food },
-                            { time: '15:00', item: '杉並動畫博物館', loc: 'Suginami Animation Museum', toilet: '室內小型場館，安靜舒適', note: '免費參觀，介紹日本動畫製作過程。環境清幽，長輩也舒服。', img: IMG.anime },
-                            { time: '17:30', item: '吉祥寺商圈掃貨', loc: 'Kichijoji Sun Road', toilet: '百貨與藥妝店皆有廁所', note: '藥妝、雜貨天堂。全家人都好逛，長輩可在百貨休息區等。', img: IMG.street }
+                            { time: '10:00', item: '吉卜力美術館', loc: 'Ghibli Museum, Mitaka', toilet: '館內廁所精緻，園區有咖啡廳可久坐', note: '必須預約搶票！青少年朝聖地，長輩欣賞手工建築美學。', img: IMG.ghibli, transit: { icon: '🚃', method: 'JR 中央線 → 公車', duration: '約 50 分鐘', note: '從羽田搭京急→品川轉 JR 中央線到三鷹，再搭接駁公車' } },
+                            { time: '13:30', item: '吉祥寺午餐', loc: 'Kichijoji 商圈', toilet: '商店街內有公用廁所及百貨廁所', note: '在地美食天堂。推薦「いせや」烤雞串或「小ざさ」羊羹。', img: IMG.food, transit: { icon: '🚶', method: '步行 / 公車', duration: '約 15 分鐘', note: '從吉卜力美術館沿玉川上水步行到吉祥寺站' } },
+                            { time: '15:00', item: '杉並動畫博物館', loc: 'Suginami Animation Museum', toilet: '室內小型場館，安靜舒適', note: '免費參觀，介紹日本動畫製作過程。環境清幽，長輩也舒服。', img: IMG.anime, transit: { icon: '🚃', method: 'JR 中央線', duration: '約 15 分鐘', note: '吉祥寺搭 JR 到荻窪站，再步行 5 分鐘' } },
+                            { time: '17:30', item: '吉祥寺商圈掃貨', loc: 'Kichijoji Sun Road', toilet: '百貨與藥妝店皆有廁所', note: '藥妝、雜貨天堂。全家人都好逛，長輩可在百貨休息區等。', img: IMG.street, transit: { icon: '🚃', method: 'JR 中央線', duration: '約 10 分鐘', note: '荻窪搭 JR 回吉祥寺站，出站即到商圈' } }
                         ],
                         Sun: [
-                            { time: '09:30', item: '中野百老匯', loc: 'Nakano Broadway', toilet: '2 樓有舒適廁所，樓下有超市', note: '懷舊動漫聖地，二手公仔極多。長輩可逛樓下民生超市。', img: IMG.nakano },
-                            { time: '11:30', item: '新宿 3D 貓打卡', loc: 'Cross Shinjuku Vision', toilet: '新宿站各百貨廁所', note: '快速打卡巨型 3D 貓。', img: IMG.night_view },
-                            { time: '12:00', item: '🚕 前往羽田機場', loc: '新宿 → 羽田（計程車約 40 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 新宿離羽田較遠，建議搭計程車（五人分攤約 ¥1,500/人）。', img: IMG.airport }
+                            { time: '09:30', item: '中野百老匯', loc: 'Nakano Broadway', toilet: '2 樓有舒適廁所，樓下有超市', note: '懷舊動漫聖地，二手公仔極多。長輩可逛樓下民生超市。', img: IMG.nakano, transit: { icon: '🚃', method: 'JR 中央線', duration: '約 25 分鐘', note: '從羽田搭京急→品川轉 JR 中央線到中野站' } },
+                            { time: '11:30', item: '新宿 3D 貓打卡', loc: 'Cross Shinjuku Vision', toilet: '新宿站各百貨廁所', note: '快速打卡巨型 3D 貓。', img: IMG.night_view, transit: { icon: '🚃', method: 'JR 中央線', duration: '約 5 分鐘', note: '中野→新宿僅一站' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '新宿 → 羽田（計程車約 40 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 新宿離羽田較遠，建議搭計程車（五人分攤約 ¥1,500/人）。', img: IMG.airport, transit: { icon: '🚕', method: '計程車', duration: '約 40 分鐘', note: '五人搭計程車最方便，分攤約 ¥1,500/人' } }
                         ]
                     }
                 },
@@ -704,15 +740,15 @@
                     chartData: [9, 7, 7, 8, 7, 9],
                     schedule: {
                         Sat: [
-                            { time: '10:30', item: 'Small Worlds Tokyo', loc: 'Small Worlds Tokyo（有明）', toilet: '館內有無障礙設施與沙發休息區', note: '世界最大室內微縮模型，有 EVA 專區！長輩也會驚嘆工藝。', img: IMG.miniature },
-                            { time: '13:30', item: 'DiverCity 午餐', loc: 'DiverCity Tokyo Plaza', toilet: '商場內廁所豐富，有大型休息區', note: '美食街選擇多，可看窗外獨角獸鋼彈。全家都能找到喜歡的。', img: IMG.food },
-                            { time: '15:00', item: '東京 Joypolis', loc: 'Tokyo Joypolis（DECKS）', toilet: 'DECKS 商場內廁所充足', note: 'SEGA 室內樂園，青少年尖叫首選。長輩可在外面看海休息。', img: IMG.arcade },
-                            { time: '18:00', item: '台場一丁目老街 + 晚餐', loc: 'DECKS Tokyo Beach', toilet: '懷舊昭和風區，廁所好找', note: '復古雜貨與遊戲機，長輩能找回童心。晚餐可在此區解決。', img: IMG.street }
+                            { time: '10:30', item: 'Small Worlds Tokyo', loc: 'Small Worlds Tokyo（有明）', toilet: '館內有無障礙設施與沙發休息區', note: '世界最大室內微縮模型，有 EVA 專區！長輩也會驚嘆工藝。', img: IMG.miniature, transit: { icon: '🚝', method: '東京臨海線 → 百合海鷗號', duration: '約 35 分鐘', note: '羽田搭東京單軌到天王洲轉臨海線至東京テレポート，再轉百合海鷗號至有明' } },
+                            { time: '13:30', item: 'DiverCity 午餐', loc: 'DiverCity Tokyo Plaza', toilet: '商場內廁所豐富，有大型休息區', note: '美食街選擇多，可看窗外獨角獸鋼彈。全家都能找到喜歡的。', img: IMG.food, transit: { icon: '🚶', method: '步行', duration: '約 10 分鐘', note: '有明地區步行至台場 DiverCity' } },
+                            { time: '15:00', item: '東京 Joypolis', loc: 'Tokyo Joypolis（DECKS）', toilet: 'DECKS 商場內廁所充足', note: 'SEGA 室內樂園，青少年尖叫首選。長輩可在外面看海休息。', img: IMG.arcade, transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: 'DiverCity 沿海濱步道走到 DECKS' } },
+                            { time: '18:00', item: '台場一丁目老街 + 晚餐', loc: 'DECKS Tokyo Beach', toilet: '懷舊昭和風區，廁所好找', note: '復古雜貨與遊戲機，長輩能找回童心。晚餐可在此區解決。', img: IMG.street, transit: { icon: '🚶', method: '同棟商場內', duration: '約 2 分鐘', note: '在 DECKS 同一棟內，搭電梯即達' } }
                         ],
                         Sun: [
-                            { time: '09:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施非常新，廁所極乾淨', note: '江戶風美食街！長輩泡免費足湯看海，青少年吃海鮮丼。', img: IMG.toyosu },
-                            { time: '11:00', item: '最後掃貨', loc: 'DiverCity 或 LaLaport 豐洲', toilet: '商場內備有充足休息區', note: '最後購物機會。豐洲離羽田超近。', img: IMG.shopping },
-                            { time: '12:00', item: '🚕 前往羽田機場', loc: '豐洲/台場 → 羽田（計程車約 20 分）', toilet: '羽田機場國際航廈設施完善', note: '✅ 台場/豐洲距羽田非常近，計程車約 20 分鐘即達！', img: IMG.airport }
+                            { time: '09:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施非常新，廁所極乾淨', note: '江戶風美食街！長輩泡免費足湯看海，青少年吃海鮮丼。', img: IMG.toyosu, transit: { icon: '🚝', method: '百合海鷗號', duration: '約 20 分鐘', note: '台場搭百合海鷗號至市場前站' } },
+                            { time: '11:00', item: '最後掃貨', loc: 'DiverCity 或 LaLaport 豐洲', toilet: '商場內備有充足休息區', note: '最後購物機會。豐洲離羽田超近。', img: IMG.shopping, transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '千客萬來旁即有 LaLaport 豐洲' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '豐洲/台場 → 羽田（計程車約 20 分）', toilet: '羽田機場國際航廈設施完善', note: '✅ 台場/豐洲距羽田非常近，計程車約 20 分鐘即達！', img: IMG.airport, transit: { icon: '🚕', method: '計程車', duration: '約 20 分鐘', note: '豐洲到羽田非常近，五人搭車最方便' } }
                         ]
                     }
                 },
@@ -726,16 +762,16 @@
                     chartData: [9, 5, 4, 9, 10, 5],
                     schedule: {
                         Sat: [
-                            { time: '09:30', item: '明治神宮', loc: 'Meiji Jingu', toilet: '⚠️ 進入森林前需在車站先上廁所', note: '巨型鳥居，長輩散步呼吸芬多精。步道平緩但距離稍長。', img: IMG.meiji },
-                            { time: '11:30', item: '竹下通 / 裏原宿', loc: 'Takeshita Street', toilet: '建議去原宿車站或百貨公司廁所', note: '青少年潮流天堂！浮誇甜點、動漫服飾。長輩可在表參道咖啡廳等。', img: IMG.harajuku },
-                            { time: '14:00', item: '表參道午餐', loc: '表參道周邊餐廳', toilet: '百貨內廁所整潔', note: '建議選有座位的餐廳讓長輩好好休息。避免站著吃。', img: IMG.food },
-                            { time: '15:30', item: '澀谷十字路口 & SHIBUYA SKY', loc: 'Shibuya Crossing / SHIBUYA SKY', toilet: '星巴克或百貨廁所；SKY 室內有休息座', note: 'SHIBUYA SKY 需預約！360 度觀景看東京全景。傍晚時分最美。', img: IMG.shibuya },
-                            { time: '18:30', item: '澀谷晚餐', loc: '澀谷站周邊', toilet: '各百貨商場廁所', note: '選擇多元，從居酒屋到家庭餐廳都有。', img: IMG.night_view }
+                            { time: '09:30', item: '明治神宮', loc: 'Meiji Jingu', toilet: '⚠️ 進入森林前需在車站先上廁所', note: '巨型鳥居，長輩散步呼吸芬多精。步道平緩但距離稍長。', img: IMG.meiji, transit: { icon: '🚃', method: 'JR 山手線', duration: '約 35 分鐘', note: '羽田搭京急到品川，轉 JR 山手線到原宿站' } },
+                            { time: '11:30', item: '竹下通 / 裏原宿', loc: 'Takeshita Street', toilet: '建議去原宿車站或百貨公司廁所', note: '青少年潮流天堂！浮誇甜點、動漫服飾。長輩可在表參道咖啡廳等。', img: IMG.harajuku, transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '從明治神宮出口步行即到竹下通入口' } },
+                            { time: '14:00', item: '表參道午餐', loc: '表參道周邊餐廳', toilet: '百貨內廁所整潔', note: '建議選有座位的餐廳讓長輩好好休息。避免站著吃。', img: IMG.food, transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '竹下通走到底即接表參道，沿街漫步' } },
+                            { time: '15:30', item: '澀谷十字路口 & SHIBUYA SKY', loc: 'Shibuya Crossing / SHIBUYA SKY', toilet: '星巴克或百貨廁所；SKY 室內有休息座', note: 'SHIBUYA SKY 需預約！360 度觀景看東京全景。傍晚時分最美。', img: IMG.shibuya, transit: { icon: '🚃', method: 'JR 山手線 / 步行', duration: '約 15 分鐘', note: '原宿→澀谷一站（3 分鐘），或沿 Cat Street 步行' } },
+                            { time: '18:30', item: '澀谷晚餐', loc: '澀谷站周邊', toilet: '各百貨商場廁所', note: '選擇多元，從居酒屋到家庭餐廳都有。', img: IMG.night_view, transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: 'SHIBUYA SKY 就在澀谷 Scramble Square，下樓即是' } }
                         ],
                         Sun: [
-                            { time: '09:00', item: '代代木公園晨散步', loc: 'Yoyogi Park', toilet: '⚠️ 公園廁所普通，建議在飯店先上', note: '若體力允許，可看日本街頭藝人表演。天氣好超舒服。', img: IMG.yoyogi },
-                            { time: '10:30', item: '表參道咖啡 & 小購物', loc: 'Omotesando', toilet: '咖啡廳與百貨皆有廁所', note: '最後悠閒時光，買個伴手禮。', img: IMG.cafe },
-                            { time: '12:00', item: '🚕 前往羽田機場', loc: '澀谷 → 羽田（計程車約 30 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 澀谷到羽田約 30-40 分鐘車程，請預留充足時間。', img: IMG.airport }
+                            { time: '09:00', item: '代代木公園晨散步', loc: 'Yoyogi Park', toilet: '⚠️ 公園廁所普通，建議在飯店先上', note: '若體力允許，可看日本街頭藝人表演。天氣好超舒服。', img: IMG.yoyogi, transit: { icon: '🚃', method: 'JR 山手線', duration: '約 35 分鐘', note: '羽田搭京急到品川，轉 JR 山手線到原宿站' } },
+                            { time: '10:30', item: '表參道咖啡 & 小購物', loc: 'Omotesando', toilet: '咖啡廳與百貨皆有廁所', note: '最後悠閒時光，買個伴手禮。', img: IMG.cafe, transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '從代代木公園 ← 原宿口步行到表參道' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '澀谷 → 羽田（計程車約 30 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 澀谷到羽田約 30-40 分鐘車程，請預留充足時間。', img: IMG.airport, transit: { icon: '🚕', method: '計程車', duration: '約 30 分鐘', note: '表參道/澀谷搭計程車直達羽田，五人分攤約 ¥1,200/人' } }
                         ]
                     }
                 },
@@ -749,16 +785,16 @@
                     chartData: [8, 9, 8, 7, 8, 10],
                     schedule: {
                         Sat: [
-                            { time: '10:00', item: '獨角獸鋼彈 1:1 展示', loc: 'Unicorn Gundam Statue（DiverCity 前）', toilet: 'DiverCity 商場廁所非常方便', note: '每到整點有變身音樂秀，震撼感十足！青少年必拍。', img: IMG.gundam },
-                            { time: '12:30', item: 'DiverCity 午餐', loc: 'DiverCity Tokyo Plaza', toilet: '餐廳樓層廁所充足', note: '美食街選擇超多，五人各選各的也 OK。', img: IMG.food },
-                            { time: '14:00', item: '台場海濱公園散步', loc: 'Odaiba Marine Park', toilet: '沿海步道平坦，設有許多長凳', note: '遠眺彩虹大橋，適合長輩慢走。累了隨時坐下看海。', img: IMG.odaiba },
-                            { time: '16:00', item: '鋼彈基地商店', loc: 'The Gundam Base Tokyo（DiverCity 7F）', toilet: '商場內', note: '鋼彈模型最齊全的地方！青少年掃貨地。長輩可逛其他樓層。', img: IMG.gundam },
-                            { time: '18:00', item: '台場晚餐 & 夜景', loc: 'Aqua City / DECKS', toilet: '商場廁所充足', note: '看著彩虹大橋夜景用餐，完美的週六夜晚。', img: IMG.night_view }
+                            { time: '10:00', item: '獨角獸鋼彈 1:1 展示', loc: 'Unicorn Gundam Statue（DiverCity 前）', toilet: 'DiverCity 商場廁所非常方便', note: '每到整點有變身音樂秀，震撼感十足！青少年必拍。', img: IMG.gundam, transit: { icon: '🚝', method: '東京臨海線', duration: '約 30 分鐘', note: '羽田搭東京單軌到天王洲轉臨海線至東京テレポート站' } },
+                            { time: '12:30', item: 'DiverCity 午餐', loc: 'DiverCity Tokyo Plaza', toilet: '餐廳樓層廁所充足', note: '美食街選擇超多，五人各選各的也 OK。', img: IMG.food, transit: { icon: '🚶', method: '步行（同商場）', duration: '約 2 分鐘', note: '鋼彈就在 DiverCity 正門口，直接進商場' } },
+                            { time: '14:00', item: '台場海濱公園散步', loc: 'Odaiba Marine Park', toilet: '沿海步道平坦，設有許多長凳', note: '遠眺彩虹大橋，適合長輩慢走。累了隨時坐下看海。', img: IMG.odaiba, transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: 'DiverCity 穿越自由女神像方向走到海邊' } },
+                            { time: '16:00', item: '鋼彈基地商店', loc: 'The Gundam Base Tokyo（DiverCity 7F）', toilet: '商場內', note: '鋼彈模型最齊全的地方！青少年掃貨地。長輩可逛其他樓層。', img: IMG.gundam, transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '海濱公園走回 DiverCity，搭電梯到 7 樓' } },
+                            { time: '18:00', item: '台場晚餐 & 夜景', loc: 'Aqua City / DECKS', toilet: '商場廁所充足', note: '看著彩虹大橋夜景用餐，完美的週六夜晚。', img: IMG.night_view, transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: 'DiverCity 旁邊即是 Aqua City 與 DECKS' } }
                         ],
                         Sun: [
-                            { time: '09:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施超新，廁所極乾淨', note: '江戶風美食街！長輩可泡免費足湯看海，青少年吃海鮮炸物。', img: IMG.toyosu },
-                            { time: '11:00', item: 'DiverCity 最後掃貨', loc: 'DiverCity Tokyo Plaza', toilet: '商場內備有充足休息區', note: '最後採買機會。', img: IMG.shopping },
-                            { time: '12:00', item: '🚕 前往羽田機場', loc: '台場 → 羽田（計程車僅 15 分鐘！）', toilet: '羽田機場國際航廈設施完善', note: '✅ 這是所有方案中離羽田最近的！計程車 15 分鐘，零壓力趕飛機。', img: IMG.airport }
+                            { time: '09:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施超新，廁所極乾淨', note: '江戶風美食街！長輩可泡免費足湯看海，青少年吃海鮮炸物。', img: IMG.toyosu, transit: { icon: '🚝', method: '百合海鷗號', duration: '約 20 分鐘', note: '台場搭百合海鷗號至市場前站，步行 3 分鐘' } },
+                            { time: '11:00', item: 'DiverCity 最後掃貨', loc: 'DiverCity Tokyo Plaza', toilet: '商場內備有充足休息區', note: '最後採買機會。', img: IMG.shopping, transit: { icon: '🚝', method: '百合海鷗號', duration: '約 20 分鐘', note: '豐洲搭回台場站' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '台場 → 羽田（計程車僅 15 分鐘！）', toilet: '羽田機場國際航廈設施完善', note: '✅ 這是所有方案中離羽田最近的！計程車 15 分鐘，零壓力趕飛機。', img: IMG.airport, transit: { icon: '🚕', method: '計程車', duration: '僅 15 分鐘！', note: '台場到羽田超近，五人搭車分攤約 ¥800/人' } }
                         ]
                     }
                 },
@@ -772,16 +808,16 @@
                     chartData: [6, 8, 5, 6, 9, 5],
                     schedule: {
                         Sat: [
-                            { time: '09:30', item: '淺草寺 / 雷門', loc: 'Senso-ji', toilet: '觀光中心有乾淨廁所與電梯展望台', note: '經典地標！長輩求籤，青少年拍大燈籠。早上人潮較少。', img: IMG.asakusa },
-                            { time: '12:00', item: '淺草午餐', loc: '淺草周邊', toilet: '觀光區廁所多', note: '推薦天丼或蕎麥麵老店。建議提早用餐避開人潮。', img: IMG.food },
-                            { time: '13:30', item: '淺草西參道商店街', loc: 'Nishisando Shopping Street', toilet: '木地板步道，對膝蓋友善', note: '祭典小遊戲（撈金魚、射擊），青少年會喜歡！', img: IMG.street },
-                            { time: '15:30', item: '隅田川未來船', loc: 'Tokyo Cruise（淺草碼頭）', toilet: '船上有廁所，座位極舒適', note: '推薦「HIMIKO」或「EMERALDAS」！免走路直達台場。長輩最愛。', img: IMG.cruise },
-                            { time: '17:30', item: '台場晚餐 & 夜景', loc: 'Aqua City Odaiba', toilet: '商場廁所充足', note: '下船後直接在台場用晚餐看夜景。', img: IMG.night_view }
+                            { time: '09:30', item: '淺草寺 / 雷門', loc: 'Senso-ji', toilet: '觀光中心有乾淨廁所與電梯展望台', note: '經典地標！長輩求籤，青少年拍大燈籠。早上人潮較少。', img: IMG.asakusa, transit: { icon: '🚃', method: '京急線 → 都營淺草線', duration: '約 40 分鐘', note: '羽田搭京急線直通都營淺草線到淺草站，免轉車' } },
+                            { time: '12:00', item: '淺草午餐', loc: '淺草周邊', toilet: '觀光區廁所多', note: '推薦天丼或蕎麥麵老店。建議提早用餐避開人潮。', img: IMG.food, transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '淺草寺周邊即有大量餐廳' } },
+                            { time: '13:30', item: '淺草西參道商店街', loc: 'Nishisando Shopping Street', toilet: '木地板步道，對膝蓋友善', note: '祭典小遊戲（撈金魚、射擊），青少年會喜歡！', img: IMG.street, transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '從淺草寺西側門走出即到西參道' } },
+                            { time: '15:30', item: '隅田川未來船', loc: 'Tokyo Cruise（淺草碼頭）', toilet: '船上有廁所，座位極舒適', note: '推薦「HIMIKO」或「EMERALDAS」！免走路直達台場。長輩最愛。', img: IMG.cruise, transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '從淺草寺走到吾妻橋旁的淺草碼頭' } },
+                            { time: '17:30', item: '台場晚餐 & 夜景', loc: 'Aqua City Odaiba', toilet: '商場廁所充足', note: '下船後直接在台場用晚餐看夜景。', img: IMG.night_view, transit: { icon: '🚢', method: '水上巴士（HIMIKO）', duration: '約 50 分鐘', note: '淺草碼頭搭未來船直達台場海濱公園，免走路免轉車' } }
                         ],
                         Sun: [
-                            { time: '09:00', item: '東京晴空塔 & Solamachi', loc: 'Tokyo Skytree', toilet: '商場廁所多，指標清楚', note: '登頂看市景。下方 Solamachi 有極多動漫聯名店可掃貨。', img: IMG.skytree },
-                            { time: '11:30', item: '隅田公園河邊咖啡', loc: 'Sumida Park', toilet: '河邊風景美，適合長輩小憩', note: '看著晴空塔喝咖啡，度過最後的東京時光。', img: IMG.cafe },
-                            { time: '12:30', item: '🚕 前往羽田機場', loc: '押上 → 羽田（計程車約 35 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 晴空塔離羽田較遠，請務必準時離開避免趕飛機壓力。', img: IMG.airport }
+                            { time: '09:00', item: '東京晴空塔 & Solamachi', loc: 'Tokyo Skytree', toilet: '商場廁所多，指標清楚', note: '登頂看市景。下方 Solamachi 有極多動漫聯名店可掃貨。', img: IMG.skytree, transit: { icon: '🚃', method: '百合海鷗號 → 押上線', duration: '約 35 分鐘', note: '台場搭百合海鷗號到新橋，轉都營淺草線到押上站' } },
+                            { time: '11:30', item: '隅田公園河邊咖啡', loc: 'Sumida Park', toilet: '河邊風景美，適合長輩小憩', note: '看著晴空塔喝咖啡，度過最後的東京時光。', img: IMG.cafe, transit: { icon: '🚶', method: '步行', duration: '約 10 分鐘', note: '從晴空塔沿北十間川步行到隅田公園' } },
+                            { time: '12:30', item: '🚕 前往羽田機場', loc: '押上 → 羽田（計程車約 35 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 晴空塔離羽田較遠，請務必準時離開避免趕飛機壓力。', img: IMG.airport, transit: { icon: '🚕', method: '計程車', duration: '約 35 分鐘', note: '押上搭計程車直達羽田，五人分攤約 ¥1,500/人' } }
                         ]
                     }
                 }
@@ -886,6 +922,21 @@
             container.innerHTML = '';
 
             scheduleData.forEach((item, index) => {
+                // Add transit connector before this item (if transit data exists)
+                if (item.transit) {
+                    const transitEl = document.createElement('div');
+                    transitEl.className = 'transit-connector';
+                    transitEl.style.animationDelay = `${index * 0.08 - 0.04}s`;
+                    const transitNoteHtml = item.transit.note ? `<span class="transit-note">· ${item.transit.note}</span>` : '';
+                    transitEl.innerHTML = `
+                        <span class="transit-icon">${item.transit.icon}</span>
+                        <span class="transit-method">${item.transit.method}</span>
+                        <span class="transit-duration">${item.transit.duration}</span>
+                        ${transitNoteHtml}
+                    `;
+                    container.appendChild(transitEl);
+                }
+
                 const el = document.createElement('div');
                 el.className = 'flex gap-4 fade-in';
                 el.style.animationDelay = `${index * 0.08}s`;
