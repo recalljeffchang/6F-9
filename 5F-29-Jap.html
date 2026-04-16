@@ -1361,7 +1361,7 @@
                 // Add transit connector before this item (if transit data exists)
                 if (item.transit) {
                     const transitEl = document.createElement('div');
-                    transitEl.className = 'transit-connector';
+                    transitEl.className = 'transit-connector fade-in';
                     transitEl.style.animationDelay = `${index * 0.08 - 0.04}s`;
                     const transitNoteHtml = item.transit.note ? `<span class="transit-note">· ${item.transit.note}</span>` : '';
 
@@ -1390,6 +1390,7 @@
                         </div>
                     `;
                     container.appendChild(transitEl);
+                    if (fadeObserver) fadeObserver.observe(transitEl);
                 }
 
                 const el = document.createElement('div');
