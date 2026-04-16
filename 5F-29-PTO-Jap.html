@@ -1231,8 +1231,22 @@
 
             container.innerHTML = '';
 
+
             // Determine default origin for first item of each day
             const hotelName = 'Haneda+Airport+Tokyo';
+
+            // Feature 4: Full Day Route Button
+            let unifiedRouteQuery = scheduleData.map(item => {
+                return (item.mapUrl || '').replace('https://maps.google.com/?q=', '') || item.loc.replace(/ /g, '+');
+            }).filter(loc => loc && !loc.includes('%E5%8F%AF%E9%81%B8') && !loc.includes('可選')).join('/');
+            
+            const unifiedDirectionsUrl = `https://www.google.com/maps/dir/${hotelName}/${unifiedRouteQuery}`;
+
+            const topRouteBtn = document.createElement('div');
+            topRouteBtn.className = 'w-full mb-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-all hover:-translate-y-0.5 fade-in';
+            topRouteBtn.innerHTML = `<a href="${unifiedDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="block w-full h-full font-bold text-base text-white text-center py-3" style="text-decoration:none">🗺️ 開啟本日完整全線導航地圖</a>`;
+            container.appendChild(topRouteBtn);
+
 
             scheduleData.forEach((item, index) => {
                 // Add transit connector before this item (if transit data exists)
@@ -1372,5 +1386,69 @@
             observer.observe(el);
         });
     </script>
+
+    <!-- Feature 3: Emergency & Travel Phrases Widget -->
+    <button onclick="document.getElementById('emergencyModal').classList.remove('hidden')" class="fixed bottom-6 right-6 bg-teal-600 text-white p-4 rounded-full shadow-xl hover:bg-teal-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-2" style="border: 2px solid #fff;">
+        <span class="text-2xl">🗣️</span> <span class="font-bold pr-1 drop-shadow-md">實用翻譯卡</span>
+    </button>
+
+    <div id="emergencyModal" class="fixed inset-0 bg-stone-900/70 z-50 flex items-center justify-center hidden backdrop-blur-sm" onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden m-4 flex flex-col max-h-[85vh]">
+            <div class="bg-stone-100 px-4 py-3 flex justify-between items-center border-b">
+                <h3 class="font-bold text-lg text-stone-800">🗣️ 實用日語與求助</h3>
+                <button onclick="document.getElementById('emergencyModal').classList.add('hidden')" class="text-stone-400 hover:text-stone-700 font-bold text-xl px-2">✕</button>
+            </div>
+            
+            <div class="overflow-y-auto p-4 space-y-4 pb-8">
+                <div>
+                    <h4 class="text-sm font-bold text-teal-700 mb-2 border-b-2 border-teal-100 pb-1">點餐 / 餐廳</h4>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border">
+                        <span class="font-black text-xl text-stone-800">わさび抜きでお願いします。</span>
+                        <span class="text-sm text-stone-500">請不要加芥末 (Wasabi nuki de)</span>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border mt-2">
+                        <span class="font-black text-xl text-stone-800">お会計をお願いします。</span>
+                        <span class="text-sm text-stone-500">麻煩結帳 (Okaikei o)</span>
+                        <div class="h-px bg-stone-200 my-2"></div>
+                        <span class="font-black text-xl text-stone-800">クレジットカードは使えますか？</span>
+                        <span class="text-sm text-stone-500">可以使用信用卡嗎？</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-teal-700 mb-2 border-b-2 border-teal-100 pb-1">購物 / 生活</h4>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border">
+                        <span class="font-black text-xl text-stone-800">トイレはどこですか？</span>
+                        <span class="text-sm text-stone-500">請問廁所在哪裡？ (Toire wa doko desu ka)</span>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border mt-2">
+                        <span class="font-black text-xl text-stone-800">袋をください。</span>
+                        <span class="text-sm text-stone-500">請給我一個袋子 (就算要錢也沒關係)</span>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border mt-2">
+                        <span class="font-black text-xl text-stone-800">免税（Tax Free）できますか？</span>
+                        <span class="text-sm text-stone-500">請問可以退稅嗎？</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-rose-700 mb-2 border-b-2 border-rose-100 pb-1 px-1 mt-4">🚨 緊急聯絡</h4>
+                    <div class="grid grid-cols-2 gap-2 text-center text-sm">
+                        <a href="tel:119" class="bg-rose-50 text-rose-700 py-2 rounded border border-rose-200 font-bold hover:bg-rose-100 shadow-sm flex items-center justify-center gap-1"><span class="text-lg">🚑</span> 119 救護/消防</a>
+                        <a href="tel:110" class="bg-sky-50 text-sky-700 py-2 rounded border border-sky-200 font-bold hover:bg-sky-100 shadow-sm flex items-center justify-center gap-1"><span class="text-lg">🚓</span> 110 報案/警察</a>
+                    </div>
+                    <div class="mt-2 bg-stone-50 p-3 rounded-lg border text-sm text-stone-700 text-center relative overflow-hidden">
+                        <span class="font-bold flex items-center justify-center text-stone-800 mb-1 gap-1"><span class="text-lg">🇹🇼</span> 台北駐日經濟文化代表處</span>
+                        <a href="tel:03-3280-7811" class="text-blue-600 block mb-1">一般電話：03-3280-7811</a>
+                        <div class="bg-rose-100/50 -mx-3 p-2 mt-2 font-mono font-semibold">
+                            急難救助：<br>
+                            <a href="tel:080-1009-7179" class="text-rose-700">080-1009-7179</a><br>
+                            <a href="tel:080-1009-7436" class="text-rose-700">080-1009-7436</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
