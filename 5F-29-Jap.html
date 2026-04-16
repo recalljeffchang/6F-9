@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>東京 14H 快閃：家庭專屬行程規劃</title>
+    <meta name="description" content="一家五口（50歲長輩×2、青少年×3）從台中出發，週五晚松山飛羽田，週日回程的東京快閃行程互動決策面板。">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0c4a6e;
+            --primary-light: #0284c7;
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --surface: #fafaf9;
+            --surface-card: #ffffff;
+            --text-primary: #1c1917;
+            --text-secondary: #57534e;
+            --text-muted: #a8a29e;
+            --border: #e7e5e4;
+            --recommended: #059669;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--surface);
+            color: var(--text-primary);
+            font-family: 'Noto Sans TC', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        .interactive-card {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .interactive-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .selected-card {
+            border-color: var(--primary-light) !important;
+            background-color: #f0f9ff !important;
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-active {
+            border-bottom: 3px solid var(--primary-light);
+            color: var(--primary-light);
+            font-weight: 700;
+        }
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            flex: 1;
+        }
+        .timeline-step .icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0284c7, #0c4a6e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(12,74,110,0.3);
+        }
+        .timeline-connector {
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            margin-top: 28px;
+            min-width: 20px;
+        }
+        .badge-recommended {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            display: inline-block;
+            margin-left: 6px;
+            vertical-align: middle;
+            letter-spacing: 0.5px;
+        }
+        .flight-option {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .flight-option:hover {
+            border-color: var(--primary-light);
+            background-color: #f0f9ff;
+        }
+        .flight-option.recommended {
+            border-color: var(--recommended);
+            background-color: #f0fdf4;
+        }
+        .section-card {
+            background: var(--surface-card);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            padding: 24px;
+        }
+        @media (min-width: 768px) {
+            .section-card { padding: 32px; }
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%);
+        }
+        .transit-connector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            margin: 4px 0 4px 76px;
+            background: linear-gradient(90deg, #e0f2fe 0%, #f0f9ff 100%);
+            border-left: 3px solid #38bdf8;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.82rem;
+            color: #0369a1;
+            animation: fadeIn 0.3s ease-out forwards;
+            opacity: 0;
+        }
+        .transit-connector .transit-icon {
+            font-size: 1.2rem;
+            min-width: 24px;
+            text-align: center;
+        }
+        .transit-connector .transit-method {
+            font-weight: 600;
+        }
+        .transit-connector .transit-duration {
+            background: #0284c7;
+            color: white;
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .transit-connector .transit-note {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .transit-connector .transit-route-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            padding: 2px 10px;
+            border-radius: 999px;
+            text-decoration: none;
+            white-space: nowrap;
+            margin-left: auto;
+            transition: all 0.15s;
+        }
+        .transit-connector .transit-route-btn:hover {
+            background: #1d4ed8;
+            color: white;
+            border-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Hero Header -->
+    <header class="hero-gradient text-white py-12 md:py-16 px-4 mb-10 fade-in">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="inline-block bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6 border border-white/20">
+                ✈️ 2026/5/29（五）~ 5/31（日）
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black mb-4 leading-tight">
+                東京 14H 快閃<br class="md:hidden">家族決策面板
+            </h1>
+            <p class="text-base md:text-lg text-sky-100 max-w-3xl mx-auto leading-relaxed mb-6">
+                專為一家五口（50 歲長輩 ×2、16 歲 ×2、14 歲 ×1）設計。<br>
+                台中出發 → 高鐵到台北 → 松山機場週五晚間起飛 → 東京羽田。<br>
+                實際觀光時間約 <strong class="text-amber-300">14 小時</strong>，每一分鐘都要精準運用！
+            </p>
+            <div class="flex flex-wrap justify-center gap-3 text-sm">
+                <span class="bg-white/15 rounded-full px-3 py-1">👨‍👩‍👦‍👦 五人家庭</span>
+                <span class="bg-white/15 rounded-full px-3 py-1">🚄 台中→松山</span>
+                <span class="bg-white/15 rounded-full px-3 py-1">🌧️ 五月梅雨季</span>
+                <span class="bg-white/15 rounded-full px-3 py-1">⏱️ 14H 精華</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 pb-12">
+
+        <!-- Section 1: 交通動線 -->
+        <section class="mb-10 fade-in" style="animation-delay:0.1s">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">🚄 交通動線總覽</h2>
+                <p class="text-stone-500 mb-8">無論選擇哪個行程方案，去回程交通動線皆相同。</p>
+
+                <!-- 去程 Timeline -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-sky-800 mb-4">📍 去程：週五 5/29</h3>
+
+                    <!-- 最晚出發倒推表 -->
+                    <div class="bg-sky-50 rounded-xl p-5 border border-sky-200 mb-6">
+                        <h4 class="font-bold text-sky-900 mb-3">⏰ 台中高鐵最晚出發時間（倒推計算）</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-sky-200">
+                                        <th class="text-left py-2 px-3 text-sky-800">航班</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">松山起飛</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">需到松山</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">需到台北車站</th>
+                                        <th class="text-left py-2 px-3 text-sky-800 font-black">🚄 台中最晚出發</th>
+                                        <th class="text-left py-2 px-3 text-sky-800">抵達羽田</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-sky-100">
+                                        <td class="py-2.5 px-3 font-medium">BR190 長榮</td>
+                                        <td class="py-2.5 px-3">16:20</td>
+                                        <td class="py-2.5 px-3">14:20</td>
+                                        <td class="py-2.5 px-3">14:00</td>
+                                        <td class="py-2.5 px-3 font-black text-sky-900 text-base">🕐 13:00</td>
+                                        <td class="py-2.5 px-3 text-stone-500">20:20（日本）</td>
+                                    </tr>
+                                    <tr class="bg-emerald-50 border border-emerald-200 rounded">
+                                        <td class="py-2.5 px-3 font-bold text-emerald-800">CI222 華航 <span class="badge-recommended">最晚</span></td>
+                                        <td class="py-2.5 px-3 font-bold text-emerald-800">18:05</td>
+                                        <td class="py-2.5 px-3">16:05</td>
+                                        <td class="py-2.5 px-3">15:45</td>
+                                        <td class="py-2.5 px-3 font-black text-emerald-900 text-base">🕐 14:50</td>
+                                        <td class="py-2.5 px-3 text-stone-500">22:05（日本）</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-xs text-sky-700 mt-3">
+                            💡 計算方式：起飛前 2hr 到松山報到 → 台北車站到松山計程車 15 分鐘 → 高鐵台中到台北約 50 分鐘。<br>
+                            ⚠️ 以上為極限時間，建議再提前 30 分鐘以預留緩衝。
+                        </p>
+                    </div>
+
+                    <!-- Visual Timeline (以推薦的 BR190 為例) -->
+                    <p class="text-sm text-stone-500 mb-3">▼ 以推薦航班 BR190 為例的時間軸</p>
+                    <div class="flex items-start overflow-x-auto pb-4 gap-0">
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🚄</div>
+                            <p class="font-bold text-sm mt-3">台中高鐵站</p>
+                            <p class="text-xs text-stone-400 mt-1">最晚 13:00</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🏙️</div>
+                            <p class="font-bold text-sm mt-3">台北車站</p>
+                            <p class="text-xs text-stone-400 mt-1">~13:50 抵達</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🛫</div>
+                            <p class="font-bold text-sm mt-3">松山機場</p>
+                            <p class="text-xs text-stone-400 mt-1">14:20 報到</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">✈️</div>
+                            <p class="font-bold text-sm mt-3">BR190 起飛</p>
+                            <p class="text-xs text-stone-400 mt-1">16:20</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🛬</div>
+                            <p class="font-bold text-sm mt-3">羽田機場</p>
+                            <p class="text-xs text-stone-400 mt-1">20:20（日本）</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🏨</div>
+                            <p class="font-bold text-sm mt-3">入住飯店</p>
+                            <p class="text-xs text-stone-400 mt-1">~21:00 休息</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 航班選擇 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-sky-800 mb-4">✈️ 航班選擇（松山 TSA → 羽田 HND）</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flight-option recommended">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-lg text-emerald-800">BR190 長榮航空</span>
+                                <span class="badge-recommended">✨ 推薦</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-stone-600">
+                                <div>
+                                    <p class="text-2xl font-black text-stone-800">16:20</p>
+                                    <p class="text-xs">松山 TSA</p>
+                                </div>
+                                <div class="flex-1 text-center">
+                                    <p class="text-xs text-stone-400">── ✈️ 約 3hr ──</p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-black text-stone-800">20:20</p>
+                                    <p class="text-xs">羽田 HND（日本時間）</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-emerald-700 mt-3">較早到達，可在飯店周邊吃晚餐、逛便利商店採買明日物資。</p>
+                        </div>
+                        <div class="flight-option">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-lg text-stone-700">CI222 中華航空</span>
+                            </div>
+                            <div class="flex items-center gap-4 text-stone-600">
+                                <div>
+                                    <p class="text-2xl font-black text-stone-800">18:05</p>
+                                    <p class="text-xs">松山 TSA</p>
+                                </div>
+                                <div class="flex-1 text-center">
+                                    <p class="text-xs text-stone-400">── ✈️ 約 3hr ──</p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-black text-stone-800">22:05</p>
+                                    <p class="text-xs">羽田 HND（日本時間）</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-stone-500 mt-3">適合無法提早出發者，但到達較晚，直接回飯店休息。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 住宿（已確認） -->
+                <div class="mb-8 bg-emerald-50 rounded-xl p-5 border border-emerald-200">
+                    <h3 class="text-lg font-bold text-emerald-800 mb-3">🏨 住宿已確認（週五、週六共兩晚）</h3>
+                    <div class="flex items-center gap-4 bg-white rounded-lg p-4 border border-emerald-200">
+                        <div class="text-4xl">🛬</div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="font-bold text-lg text-emerald-900">羽田機場直結</p>
+                                <span class="badge-recommended">✅ 已確認</span>
+                            </div>
+                            <p class="text-stone-700 font-medium">Hotel Villa Fontaine Grand 羽田空港（ヴィラフォンテーヌ グランド 羽田空港）</p>
+                            <p class="text-sm text-stone-500 mt-1">📍 位於羽田機場第三航廈（國際線）直結，Haneda Airport Garden 內。出關後步行即達，免轉車、免拖行李，長輩最省力的選擇。週日退房後行李可寄放飯店，輕裝出發觀光，回程直接到機場報到。</p>
+                            <div class="flex flex-wrap gap-3 mt-3">
+                                <a href="https://www.hvf.jp/eng/hanedaairport-grand/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 px-3 py-1.5 rounded-lg transition-colors">
+                                    🌐 官方網站
+                                </a>
+                                <a href="https://www.google.com/maps/search/Hotel+Villa+Fontaine+Grand+Haneda+Airport+2-7-1+Haneda+Airport+Ota-ku+Tokyo" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition-colors">
+                                    📍 Google Map
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回程 Timeline -->
+                <div>
+                    <h3 class="text-lg font-bold text-sky-800 mb-4">📍 回程：週日 5/31</h3>
+                    <div class="flex items-start overflow-x-auto pb-4 gap-0">
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🛍️</div>
+                            <p class="font-bold text-sm mt-3">上午行程結束</p>
+                            <p class="text-xs text-stone-400 mt-1">~11:30</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🚕</div>
+                            <p class="font-bold text-sm mt-3">前往羽田</p>
+                            <p class="text-xs text-stone-400 mt-1">~12:00</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🛫</div>
+                            <p class="font-bold text-sm mt-3">羽田報到</p>
+                            <p class="text-xs text-stone-400 mt-1">~13:00</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">✈️</div>
+                            <p class="font-bold text-sm mt-3">回程航班</p>
+                            <p class="text-xs text-stone-400 mt-1">14:00~17:00</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🛬</div>
+                            <p class="font-bold text-sm mt-3">松山機場</p>
+                            <p class="text-xs text-stone-400 mt-1">到達台北</p>
+                        </div>
+                        <div class="timeline-connector"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle">🏠</div>
+                            <p class="font-bold text-sm mt-3">高鐵回台中</p>
+                            <p class="text-xs text-stone-400 mt-1">~50 分鐘</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分隔線 -->
+                <div class="my-10 flex items-center gap-4">
+                    <div class="flex-1 h-px bg-stone-300"></div>
+                    <span class="text-stone-400 font-bold text-sm tracking-widest">其他出發方案</span>
+                    <div class="flex-1 h-px bg-stone-300"></div>
+                </div>
+
+                <!-- 方案 B: 5/30 開車 -->
+                <div class="bg-violet-50 rounded-2xl p-6 border border-violet-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-3xl">🚗</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-violet-900">備案：5/30（六）台中開車 → 松山機場</h3>
+                            <p class="text-sm text-violet-600">若週五無法出發，改為週六一早自駕到松山搭早班機</p>
+                        </div>
+                    </div>
+
+                    <!-- 比較表 -->
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b-2 border-violet-200">
+                                    <th class="text-left py-2 px-3 text-violet-800"></th>
+                                    <th class="text-left py-2 px-3 text-sky-700">方案 A：週五高鐵出發</th>
+                                    <th class="text-left py-2 px-3 text-violet-700">方案 B：週六開車出發</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-stone-700">
+                                <tr class="border-b border-violet-100">
+                                    <td class="py-2 px-3 font-semibold">出發日</td>
+                                    <td class="py-2 px-3">5/29（五）下午</td>
+                                    <td class="py-2 px-3">5/30（六）凌晨/清早</td>
+                                </tr>
+                                <tr class="border-b border-violet-100">
+                                    <td class="py-2 px-3 font-semibold">交通方式</td>
+                                    <td class="py-2 px-3">🚄 高鐵（50 分鐘）</td>
+                                    <td class="py-2 px-3">🚗 自駕（約 2~2.5 小時）</td>
+                                </tr>
+                                <tr class="border-b border-violet-100">
+                                    <td class="py-2 px-3 font-semibold">建議航班</td>
+                                    <td class="py-2 px-3">BR190 16:20 / CI222 18:05</td>
+                                    <td class="py-2 px-3">BR 早班 ~07:20（需確認）</td>
+                                </tr>
+                                <tr class="border-b border-violet-100">
+                                    <td class="py-2 px-3 font-semibold">抵達羽田</td>
+                                    <td class="py-2 px-3">20:20 / 22:05（日本時間）</td>
+                                    <td class="py-2 px-3">~11:20（日本時間）</td>
+                                </tr>
+                                <tr class="border-b border-violet-100">
+                                    <td class="py-2 px-3 font-semibold">東京觀光時間</td>
+                                    <td class="py-2 px-3 font-bold text-sky-800">~14 小時（六全天 + 日上午）</td>
+                                    <td class="py-2 px-3 font-bold text-violet-800">~6 小時（六下午 + 日上午）</td>
+                                </tr>
+                                <tr class="border-b border-violet-100">
+                                    <td class="py-2 px-3 font-semibold">停車費</td>
+                                    <td class="py-2 px-3">無（高鐵）</td>
+                                    <td class="py-2 px-3">松山機場預約停車 NT$300/天 × 2 天</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2 px-3 font-semibold">優點</td>
+                                    <td class="py-2 px-3">觀光時間最長</td>
+                                    <td class="py-2 px-3">週五不用請假、回程開車直達家門</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 5/30 開車 Timeline -->
+                    <h4 class="font-bold text-violet-800 mb-3">📍 方案 B 時間軸：5/30（六）</h4>
+                    <div class="flex items-start overflow-x-auto pb-4 gap-0">
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle" style="background: linear-gradient(135deg, #7c3aed, #4c1d95);">🚗</div>
+                            <p class="font-bold text-sm mt-3">台中出發</p>
+                            <p class="text-xs text-stone-400 mt-1">~03:30 開車</p>
+                        </div>
+                        <div class="timeline-connector" style="background: linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle" style="background: linear-gradient(135deg, #7c3aed, #4c1d95);">🅿️</div>
+                            <p class="font-bold text-sm mt-3">松山機場停車</p>
+                            <p class="text-xs text-stone-400 mt-1">~05:30 到達</p>
+                        </div>
+                        <div class="timeline-connector" style="background: linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle" style="background: linear-gradient(135deg, #7c3aed, #4c1d95);">🛫</div>
+                            <p class="font-bold text-sm mt-3">BR 早班起飛</p>
+                            <p class="text-xs text-stone-400 mt-1">~07:20</p>
+                        </div>
+                        <div class="timeline-connector" style="background: linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle" style="background: linear-gradient(135deg, #7c3aed, #4c1d95);">🛬</div>
+                            <p class="font-bold text-sm mt-3">羽田機場</p>
+                            <p class="text-xs text-stone-400 mt-1">~11:20（日本）</p>
+                        </div>
+                        <div class="timeline-connector" style="background: linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle" style="background: linear-gradient(135deg, #7c3aed, #4c1d95);">🏨</div>
+                            <p class="font-bold text-sm mt-3">飯店寄行李</p>
+                            <p class="text-xs text-stone-400 mt-1">~12:00</p>
+                        </div>
+                        <div class="timeline-connector" style="background: linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
+                        <div class="timeline-step min-w-[90px]">
+                            <div class="icon-circle" style="background: linear-gradient(135deg, #7c3aed, #4c1d95);">🗼</div>
+                            <p class="font-bold text-sm mt-3">開始觀光</p>
+                            <p class="text-xs text-stone-400 mt-1">~12:30</p>
+                        </div>
+                    </div>
+
+                    <!-- 停車資訊 -->
+                    <div class="bg-white rounded-xl p-4 border border-violet-100 mt-4">
+                        <h4 class="font-bold text-violet-800 mb-2">🅿️ 松山機場停車資訊</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div>
+                                <p class="font-semibold text-stone-700">一般計時</p>
+                                <p class="text-stone-500">尖峰 NT$40/hr、離峰 NT$10/hr</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-stone-700">⭐ 預約停車（推薦）</p>
+                                <p class="text-stone-500">NT$300/天，需提前 3~12 天預約</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-stone-700">周邊替代</p>
+                                <p class="text-stone-500">順康/吉安亭 ~NT$160/天</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-violet-600 mt-2">💡 2 天預約停車費用：NT$600（五人分攤僅 NT$120/人）。預約連結請至 <a href="https://www.tsa.gov.tw" target="_blank" class="underline font-semibold hover:text-violet-800">松山機場官網</a>。</p>
+                    </div>
+
+                    <!-- 注意事項 -->
+                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-200 mt-4 text-sm">
+                        <p class="font-bold text-amber-800 mb-1">⚠️ 方案 B 注意事項</p>
+                        <ul class="list-disc list-inside text-amber-700 space-y-1">
+                            <li>凌晨開車 2.5 小時，長輩可在車上補眠，但駕駛需注意精神狀態</li>
+                            <li>觀光時間僅約 <strong>6 小時</strong>，建議只選 <strong>1 個景區</strong> 集中走（推薦方案 E 台場）</li>
+                            <li>早班機航班代號與時刻請於出發前在航空公司官網確認（可能因季節調整）</li>
+                            <li>回程優勢：松山降落後直接走停車場開車回台中，不用再轉高鐵</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: 天氣選擇 -->
+        <section class="mb-10 fade-in" style="animation-delay:0.2s">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">☁️ 第一步：確認天氣狀況</h2>
+                <p class="text-stone-500 mb-6">
+                    五月份為日本梅雨季。點擊下方按鈕過濾適合的行程方案。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <button id="btn-indoor" onclick="filterPlans('indoor')" class="interactive-card flex items-center justify-center gap-3 p-6 rounded-xl border-2 border-sky-200 bg-sky-50 text-sky-800 font-semibold text-lg hover:bg-sky-100 focus:outline-none">
+                        🏛️ 降雨機率 > 60%：選擇室內空調組
+                    </button>
+                    <button id="btn-outdoor" onclick="filterPlans('outdoor')" class="interactive-card flex items-center justify-center gap-3 p-6 rounded-xl border-2 border-amber-200 bg-amber-50 text-amber-800 font-semibold text-lg hover:bg-amber-100 focus:outline-none">
+                        🌳 天氣晴朗：選擇室外地標組
+                    </button>
+                </div>
+
+                <div id="plan-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: 行程細節 -->
+        <section id="detail-section" class="mb-10 hidden fade-in">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">📊 第二步：探索行程細節與屬性分析</h2>
+                <p class="text-stone-500 mb-8">
+                    左側為壓縮版時間表（週六全天 + 週日上午）；右側雷達圖量化該方案在 6 項關鍵指標上的表現。
+                </p>
+
+                <div class="flex flex-col lg:flex-row gap-10">
+                    <div class="w-full lg:w-3/5">
+                        <div class="mb-6">
+                            <h3 id="detail-title" class="text-2xl font-bold text-stone-800 mb-2"></h3>
+                            <p id="detail-desc" class="text-stone-500 italic border-l-4 border-stone-300 pl-3"></p>
+                        </div>
+
+                        <div class="flex border-b border-stone-200 mb-6">
+                            <button id="tab-sat" onclick="switchDay('Sat')" class="py-2 px-6 text-lg font-medium text-stone-500 hover:text-stone-800 focus:outline-none tab-active">
+                                🔥 週六全天
+                            </button>
+                            <button id="tab-sun" onclick="switchDay('Sun')" class="py-2 px-6 text-lg font-medium text-stone-500 hover:text-stone-800 focus:outline-none">
+                                ☀️ 週日上午
+                            </button>
+                        </div>
+
+                        <div id="schedule-container" class="space-y-5">
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-2/5 flex flex-col items-center justify-start bg-stone-50 rounded-xl p-6 border border-stone-100">
+                        <h4 class="text-lg font-bold text-stone-700 mb-4 text-center">行程屬性分析（滿分 10）</h4>
+                        <div class="chart-container">
+                            <canvas id="vibeChart"></canvas>
+                        </div>
+                        <p class="text-sm text-stone-400 mt-4 text-center">
+                            面積越大 = 綜合表現越佳。「回程便利度」衡量週日趕飛機的壓力。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: 執行錦囊 -->
+        <section class="fade-in" style="animation-delay:0.3s">
+            <div class="bg-stone-800 text-stone-50 rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-2xl font-bold mb-2 text-amber-400">💡 14H 快閃執行錦囊</h2>
+                <p class="text-stone-400 mb-6">五人家庭（含長輩）在極短時間內完成東京快閃的通用黃金策略。</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-stone-700/60 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🚄</div>
+                        <h3 class="text-lg font-bold mb-2">高鐵接駁</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            五人從台中高鐵出發（約 NT$700/人），台北車站下車後搭計程車（約 NT$200）直達松山機場最省力。建議至少提早 2.5 小時到機場。
+                        </p>
+                    </div>
+                    <div class="bg-stone-700/60 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🚕</div>
+                        <h3 class="text-lg font-bold mb-2">東京交通</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            五人家庭搭計程車比電車更划算（分攤後每人只貴一點）。尤其長輩不需拖行李走樓梯。善用 Japan Taxi App 或 GO App 叫車。
+                        </p>
+                    </div>
+                    <div class="bg-stone-700/60 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🍽️</div>
+                        <h3 class="text-lg font-bold mb-2">餐飲預約</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            日本餐廳五人大桌較少。週六午、晚餐務必在出發前完成 Google / Tabelog 網上訂位，避免長輩久候排隊。
+                        </p>
+                    </div>
+                    <div class="bg-stone-700/60 p-5 rounded-xl border border-stone-600">
+                        <div class="text-3xl mb-3">🌡️</div>
+                        <h3 class="text-lg font-bold mb-2">體力管理</h3>
+                        <p class="text-stone-300 text-sm leading-relaxed">
+                            6 月東京濕熱，長輩易疲勞。執行室外方案時，每 2 小時安排一次百貨或咖啡廳「強制定點休息」15 分鐘。隨身攜帶鹽糖與水。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: 費用估算報告 -->
+        <section class="fade-in" style="animation-delay:0.35s">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">💰 交通・住宿・費用估算報告</h2>
+                <p class="text-stone-500 mb-6">五人家庭（2 大人 + 3 青少年）兩天一夜東京快閃行程的完整費用預估。幣值：台幣（NT$）/ 日圓（¥）。匯率參考：¥1 ≈ NT$0.22</p>
+
+                <!-- 去程交通 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-sky-800 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-lg">✈️</span>
+                        去程交通（台中 → 羽田）
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-sky-50 text-sky-900">
+                                    <th class="text-left p-3 rounded-tl-lg">項目</th>
+                                    <th class="text-center p-3">單價</th>
+                                    <th class="text-center p-3">人數</th>
+                                    <th class="text-right p-3 rounded-tr-lg">小計</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-stone-700">
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">🚄 台中 → 台北 高鐵（標準車廂）</td>
+                                    <td class="text-center p-3">NT$700</td>
+                                    <td class="text-center p-3">×5</td>
+                                    <td class="text-right p-3 font-semibold">NT$3,500</td>
+                                </tr>
+                                <tr class="border-b border-stone-100 bg-stone-50">
+                                    <td class="p-3">🚕 台北車站 → 松山機場（計程車）</td>
+                                    <td class="text-center p-3">NT$200</td>
+                                    <td class="text-center p-3">×1</td>
+                                    <td class="text-right p-3 font-semibold">NT$200</td>
+                                </tr>
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">✈️ 松山 → 羽田 機票（長榮/華航 來回）</td>
+                                    <td class="text-center p-3">≈NT$8,000~12,000</td>
+                                    <td class="text-center p-3">×5</td>
+                                    <td class="text-right p-3 font-semibold text-sky-700">NT$40,000~60,000</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-sky-100 font-bold text-sky-900">
+                                    <td class="p-3 rounded-bl-lg" colspan="3">去程交通小計</td>
+                                    <td class="text-right p-3 rounded-br-lg">NT$43,700~63,700</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="text-xs text-stone-400 mt-2">💡 機票價格因購買時間與日期浮動極大，建議提早 3-6 個月訂票。15 歲以下可能有兒童票折扣。</p>
+                </div>
+
+                <!-- 住宿 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-emerald-800 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-lg">🏨</span>
+                        住宿（Hotel Villa Fontaine Grand 羽田空港）
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-emerald-50 text-emerald-900">
+                                    <th class="text-left p-3 rounded-tl-lg">項目</th>
+                                    <th class="text-center p-3">單價（每晚）</th>
+                                    <th class="text-center p-3">數量</th>
+                                    <th class="text-right p-3 rounded-tr-lg">小計</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-stone-700">
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">🛏️ 家庭房 / 三人房 ×2（週五、週六共兩晚）</td>
+                                    <td class="text-center p-3">¥15,000~25,000/房</td>
+                                    <td class="text-center p-3">2 房 × 2 晚</td>
+                                    <td class="text-right p-3 font-semibold">¥60,000~100,000</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-emerald-100 font-bold text-emerald-900">
+                                    <td class="p-3 rounded-bl-lg" colspan="3">住宿小計（折合台幣）</td>
+                                    <td class="text-right p-3 rounded-br-lg">NT$13,200~22,000</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="text-xs text-stone-400 mt-2">💡 Villa Fontaine Grand 直結羽田第三航廈（國際線），含天然溫泉「泉天空の湯」可免費或付費使用。實際房價依訂房日期而定。</p>
+                </div>
+
+                <!-- 東京當地交通 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-violet-800 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-lg">🚃</span>
+                        東京當地交通（2 天）
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-violet-50 text-violet-900">
+                                    <th class="text-left p-3 rounded-tl-lg">項目</th>
+                                    <th class="text-center p-3">估價</th>
+                                    <th class="text-center p-3">說明</th>
+                                    <th class="text-right p-3 rounded-tr-lg">小計</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-stone-700">
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">🚃 電車 / 地鐵（IC 卡）</td>
+                                    <td class="text-center p-3">¥1,500~2,500/人</td>
+                                    <td class="text-center p-3">2 天估算，含羽田⇄景點</td>
+                                    <td class="text-right p-3 font-semibold">¥7,500~12,500</td>
+                                </tr>
+                                <tr class="border-b border-stone-100 bg-stone-50">
+                                    <td class="p-3">🚕 景點間計程車（白天）</td>
+                                    <td class="text-center p-3">¥2,000~5,000/趟</td>
+                                    <td class="text-center p-3">估 2~4 趟，五人分攤</td>
+                                    <td class="text-right p-3 font-semibold">¥4,000~20,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">🏨 週六晚間返回飯店（計程車）</td>
+                                    <td class="text-center p-3">¥4,000~7,000/趟</td>
+                                    <td class="text-center p-3">景點→羽田飯店，五人分攤</td>
+                                    <td class="text-right p-3 font-semibold">¥4,000~7,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-100 bg-stone-50">
+                                    <td class="p-3">🚕 週日前往機場（計程車）</td>
+                                    <td class="text-center p-3">¥3,000~7,000/趟</td>
+                                    <td class="text-center p-3">景點→羽田機場，五人分攤</td>
+                                    <td class="text-right p-3 font-semibold">¥3,000~7,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">🚢 水上巴士（方案 F HIMIKO）</td>
+                                    <td class="text-center p-3">¥1,720/人</td>
+                                    <td class="text-center p-3">視方案選擇</td>
+                                    <td class="text-right p-3 font-semibold">¥8,600</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-violet-100 font-bold text-violet-900">
+                                    <td class="p-3 rounded-bl-lg" colspan="3">東京交通小計（折合台幣）</td>
+                                    <td class="text-right p-3 rounded-br-lg">NT$5,830~10,230</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="text-xs text-stone-400 mt-2">💡 五人搭計程車常比五張電車票划算！週六晚間返回飯店建議搭計程車最方便安全，五人分攤約 ¥800~1,400/人。</p>
+                </div>
+
+                <!-- 餐飲 & 門票 -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-amber-800 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-lg">🍽️</span>
+                        餐飲 &amp; 門票
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-amber-50 text-amber-900">
+                                    <th class="text-left p-3 rounded-tl-lg">項目</th>
+                                    <th class="text-center p-3">估價/人</th>
+                                    <th class="text-center p-3">次數</th>
+                                    <th class="text-right p-3 rounded-tr-lg">五人小計</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-stone-700">
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">🍜 午餐 ×2</td>
+                                    <td class="text-center p-3">¥1,200~2,000</td>
+                                    <td class="text-center p-3">×2 餐</td>
+                                    <td class="text-right p-3 font-semibold">¥12,000~20,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-100 bg-stone-50">
+                                    <td class="p-3">🍣 晚餐 ×1</td>
+                                    <td class="text-center p-3">¥2,000~4,000</td>
+                                    <td class="text-center p-3">×1 餐</td>
+                                    <td class="text-right p-3 font-semibold">¥10,000~20,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-100">
+                                    <td class="p-3">☕ 咖啡 / 點心</td>
+                                    <td class="text-center p-3">¥500~800</td>
+                                    <td class="text-center p-3">×3 次</td>
+                                    <td class="text-right p-3 font-semibold">¥7,500~12,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-100 bg-stone-50">
+                                    <td class="p-3">🎟️ 門票（teamLab / SHIBUYA SKY / 水族館等）</td>
+                                    <td class="text-center p-3">¥2,000~3,800</td>
+                                    <td class="text-center p-3">×1~2 景點</td>
+                                    <td class="text-right p-3 font-semibold">¥10,000~38,000</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-amber-100 font-bold text-amber-900">
+                                    <td class="p-3 rounded-bl-lg" colspan="3">餐飲門票小計（折合台幣）</td>
+                                    <td class="text-right p-3 rounded-br-lg">NT$8,690~19,800</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 總計 -->
+                <div class="bg-gradient-to-r from-sky-50 via-emerald-50 to-amber-50 rounded-xl p-6 border-2 border-sky-200">
+                    <h3 class="text-xl font-bold text-stone-800 mb-4 text-center">📋 全程費用總覽</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="text-stone-600">
+                                    <th class="text-left p-3">類別</th>
+                                    <th class="text-right p-3">低估（NT$）</th>
+                                    <th class="text-right p-3">高估（NT$）</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-stone-700">
+                                <tr class="border-b border-stone-200">
+                                    <td class="p-3 flex items-center gap-2"><span class="text-sky-500">✈️</span> 去回程交通</td>
+                                    <td class="text-right p-3">43,700</td>
+                                    <td class="text-right p-3">63,700</td>
+                                </tr>
+                                <tr class="border-b border-stone-200 bg-white/50">
+                                    <td class="p-3 flex items-center gap-2"><span class="text-emerald-500">🏨</span> 住宿（2 晚）</td>
+                                    <td class="text-right p-3">13,200</td>
+                                    <td class="text-right p-3">22,000</td>
+                                </tr>
+                                <tr class="border-b border-stone-200">
+                                    <td class="p-3 flex items-center gap-2"><span class="text-violet-500">🚃</span> 東京當地交通</td>
+                                    <td class="text-right p-3">5,830</td>
+                                    <td class="text-right p-3">10,230</td>
+                                </tr>
+                                <tr class="border-b border-stone-200 bg-white/50">
+                                    <td class="p-3 flex items-center gap-2"><span class="text-amber-500">🍽️</span> 餐飲 &amp; 門票</td>
+                                    <td class="text-right p-3">8,690</td>
+                                    <td class="text-right p-3">19,800</td>
+                                </tr>
+                                <tr class="border-b border-stone-200">
+                                    <td class="p-3 flex items-center gap-2"><span class="text-pink-500">🛍️</span> 購物預算（彈性）</td>
+                                    <td class="text-right p-3">5,000</td>
+                                    <td class="text-right p-3">20,000</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-stone-800 text-white font-bold text-base">
+                                    <td class="p-4 rounded-bl-lg">🧾 五人家庭總計</td>
+                                    <td class="text-right p-4">NT$76,420</td>
+                                    <td class="text-right p-4 rounded-br-lg">NT$135,730</td>
+                                </tr>
+                                <tr class="bg-sky-700 text-white font-bold">
+                                    <td class="p-3 rounded-bl-lg">👤 平均每人</td>
+                                    <td class="text-right p-3">NT$15,284</td>
+                                    <td class="text-right p-3 rounded-br-lg">NT$27,146</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-white/80 rounded-lg p-3 text-center border border-stone-200">
+                            <p class="text-xs text-stone-400">最大開銷項</p>
+                            <p class="text-lg font-bold text-sky-700">✈️ 機票</p>
+                            <p class="text-xs text-stone-500">佔比約 50~60%</p>
+                        </div>
+                        <div class="bg-white/80 rounded-lg p-3 text-center border border-stone-200">
+                            <p class="text-xs text-stone-400">可節省項</p>
+                            <p class="text-lg font-bold text-emerald-700">🏨 住宿時機</p>
+                            <p class="text-xs text-stone-500">提早訂可省 30%+</p>
+                        </div>
+                        <div class="bg-white/80 rounded-lg p-3 text-center border border-stone-200">
+                            <p class="text-xs text-stone-400">匯率參考</p>
+                            <p class="text-lg font-bold text-amber-700">¥1 ≈ NT$0.22</p>
+                            <p class="text-xs text-stone-500">2026 年 4 月參考</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-stone-400 mt-4 text-center">⚠️ 以上為估算值，實際費用依預訂時間、匯率波動、用餐等級而異。機票建議透過 Google Flights 或 Skyscanner 比價。</p>
+            </div>
+        </section>
+
+        <!-- Section 6: 出發前作戰檢查清單 -->
+        <section class="fade-in" style="animation-delay:0.4s">
+            <div class="section-card">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">📋 出發前作戰檢查清單</h2>
+                <p class="text-stone-500 mb-6">確保萬無一失的行政與隨身物品確認表，勾選完成即可安心出發。</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- 入境與護照 -->
+                    <div class="bg-white rounded-xl p-5 border border-stone-200 shadow-sm hover:border-sky-300 transition-colors">
+                        <h3 class="text-lg font-bold text-sky-800 mb-4 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center text-lg shadow-inner">🛂</span>
+                            入境與旅行文件
+                        </h3>
+                        <div class="space-y-4">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-sky-600 border-stone-300 focus:ring-sky-500 accent-sky-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">Visit Japan Web (VJW) 截圖</strong><br>五人皆已完成入境與海關申報，並將 QR Code 截圖存於手機，加速通關。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-sky-600 border-stone-300 focus:ring-sky-500 accent-sky-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">護照效期與機票比對</strong><br>全家護照效期剩餘 6 個月以上，中英文姓名拼音與機票完全相符。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-sky-600 border-stone-300 focus:ring-sky-500 accent-sky-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">海外旅遊平安/不便險</strong><br>已投保（特別是梅雨/颱風季出發，建議涵蓋班機延誤等不便險）。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 網路與通訊配置 -->
+                    <div class="bg-white rounded-xl p-5 border border-stone-200 shadow-sm hover:border-violet-300 transition-colors">
+                        <h3 class="text-lg font-bold text-violet-800 mb-4 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-lg shadow-inner">📶</span>
+                            網路與通訊配置
+                        </h3>
+                        <div class="space-y-4">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-violet-600 border-stone-300 focus:ring-violet-500 accent-violet-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">獨立上網方案</strong><br>避免 5 人綁在一起，建議長輩與青少年各自準備 eSIM 或實體 SIM 卡，方便分開逛街。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-violet-600 border-stone-300 focus:ring-violet-500 accent-violet-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">交通/叫車 App 初始化</strong><br>已下載並綁定好信用卡：GO (叫車)、Japan Taxi、Suica (加入 Apple/Google Pay)。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 打包與機動補給 -->
+                    <div class="bg-white rounded-xl p-5 border border-stone-200 shadow-sm hover:border-emerald-300 transition-colors">
+                        <h3 class="text-lg font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-lg shadow-inner">🎒</span>
+                            打包與機動補給
+                        </h3>
+                        <div class="space-y-4">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-emerald-600 border-stone-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">快閃最強電力裝備</strong><br>備有 2~3 顆滿電行動電源（一直拍照找路耗電極快）與對應充電線。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-emerald-600 border-stone-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">梅雨季防禦對策</strong><br>超輕量摺疊傘、輕便雨衣（在人群中比撐傘方便）、防滑好走的休閒鞋。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-emerald-600 border-stone-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">長輩醫療與急救包</strong><br>個人慢性病藥物、腸胃藥、OK 繃（預防磨破皮）、鹽糖（夏天補充體力防中暑）。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 餐廳預約與備案 -->
+                    <div class="bg-white rounded-xl p-5 border border-stone-200 shadow-sm hover:border-amber-300 transition-colors">
+                        <h3 class="text-lg font-bold text-amber-800 mb-4 flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-lg shadow-inner">🍽️</span>
+                            餐廳預約與急難聯絡
+                        </h3>
+                        <div class="space-y-4">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-amber-600 border-stone-300 focus:ring-amber-500 accent-amber-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">餐廳預約狀態</strong><br>已確認週六午晚餐是否有訂位，並存好預約電子郵件。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-amber-600 border-stone-300 focus:ring-amber-500 accent-amber-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">連鎖家庭餐廳備案清單</strong><br>不保證有位時，可找尋 Gusto、Saizeriya、Royal Host 等店（座位大、各取所需、不需久候）。</span>
+                            </label>
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" class="w-5 h-5 mt-0.5 rounded text-amber-600 border-stone-300 focus:ring-amber-500 accent-amber-600 cursor-pointer">
+                                <span class="text-stone-700 text-sm leading-relaxed group-hover:text-stone-900 transition-colors"><strong class="text-stone-900 text-base">緊急聯絡清單</strong><br>全家都有住宿飯店 (Villa Fontaine Grand) 英文地址與電話，以防走失可直接搭車回飯店。</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-stone-400 text-sm mt-10 pb-4">
+            <p>6F-9 家族快閃決策系統 · 製作於 2026 年 4 月</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Image URLs for attractions (Wikimedia Commons - verified via API, all HTTP 200 confirmed)
+        const WM = (f, w=400) => `https://commons.wikimedia.org/w/thumb.php?f=${encodeURIComponent(f)}&w=${w}`;
+        const IMG = {
+            teamlab: WM('TeamLab Borderless Azabudai Hills.jpg'),
+            azabudai: WM('Azabudai Hills, opening day 41.jpg'),
+            tokyo_tower: WM('Tokyo Tower, Minato City.jpg'),
+            roppongi: WM('Tokyo Tower, Minato City.jpg'),
+            aquarium: WM('Aqua park shinagawa Wonder Tube.jpg'),
+            ghibli: WM('Ghibli Museum, Mitaka, Tokyo, 20240823 1131 5545.jpg'),
+            anime: WM('Suginami kaikan suginami animation museum 2009.JPG'),
+            street: WM('Kichijoji N-gate Square.JPG'),
+            gundam: WM('Life-Sized Unicorn Gundam Statue.jpg'),
+            odaiba: WM('Rainbow Bridge, Tokyo, South view from Odaiba 20190419 1.jpg'),
+            shibuya: WM('Tokyo Shibuya Scramble Crossing 2018-10-09.jpg'),
+            meiji: WM('Meiji-Jingu-Shrine-03.jpg'),
+            harajuku: WM('Takeshita Street.jpg'),
+            asakusa: WM('Kaminarimon1.jpg'),
+            skytree: WM('Worm\'s-eye view of Tokyo Skytree with vertical symmetry impression, a sunny day, in Japan.jpg'),
+            cruise: WM('"Himiko" Tokyo Cruise Boat @ Sumida River @ Tsukishima Island @ Tokyo (9493079356).jpg'),
+            food: WM('Tendon in Japanese Curry Sauce.JPG'),
+            shopping: WM('Nakamise1411.jpg'),
+            airport: WM('Haneda-Airport-T1-T2-STA Keikyu-Gate.jpg'),
+            park: WM('Shinjuku Gyoen National Garden and NTT DoCoMo Yoyogi Building, Tokyo, Japan.jpg'),
+            cafe: WM('Street crowd reflecting in the polyhedral mirrors of the station Tokyu Plaza Omotesando, Harajuku, Tokyo, Japan.jpg'),
+            arcade: WM('Sega Joypolis Odaiba.jpg'),
+            miniature: WM('SMALL WORLDS Miniature Museum 01.jpg'),
+            nakano: WM('Nakano broadway entrance.JPG'),
+            toyosu: WM('Nakamise1411.jpg'),
+            night_view: WM('Tokyo Tower, Minato City.jpg'),
+            yoyogi: WM('Shinjuku Gyoen National Garden and NTT DoCoMo Yoyogi Building, Tokyo, Japan.jpg'),
+        };
+
+        const reportData = {
+            plans: {
+                A: {
+                    id: 'A',
+                    type: 'indoor',
+                    title: '方案 A：未來科技與極致美學',
+                    subtitle: '麻布台 & 澀谷',
+                    desc: '適合對視覺藝術、電競有興趣的青少年，以及喜愛高級建築與購物環境的長輩。',
+                    recommended: false,
+                    chartData: [9, 8, 7, 7, 9, 8],
+                    schedule: {
+                        Sat: [
+                            { time: '10:00', item: 'teamLab Borderless', loc: 'Azabudai Hills', toilet: '商場廁所極為豪華，長輩可至中央廣場休息', note: '需預約！沉浸式光影展，青少年拍照首選，長輩也會震撼。', img: IMG.teamlab, mapUrl: 'https://maps.google.com/?q=teamLab+Borderless+Azabudai+Hills', transit: { icon: '🚝', method: '東京モノレール → 日比谷線', duration: '約 40 分鐘', note: '羽田搭東京單軌到浜松町，轉日比谷線至神谷町站' } },
+                            { time: '13:00', item: '麻布台之丘午餐', loc: 'Azabudai Hills 餐廳層', toilet: '各樓層皆有座位區與豪華洗手間', note: '東京新地標，餐廳等級高，環境極舒適。建議提前訂位。', img: IMG.azabudai, mapUrl: 'https://maps.google.com/?q=Azabudai+Hills+Tokyo', transit: { icon: '🚶', method: '步行（同棟商場內）', duration: '約 3 分鐘', note: '同在麻布台之丘，電梯直達餐廳樓層' } },
+                            { time: '15:00', item: 'RED° 東京鐵塔', loc: 'RED° TOKYO TOWER', toilet: '東京鐵塔內設有無障礙設施', note: '日本最大電競樂園，青少年體驗 VR，長輩可登塔觀景。', img: IMG.tokyo_tower, mapUrl: 'https://maps.google.com/?q=RED+TOKYO+TOWER', transit: { icon: '🚶', method: '步行', duration: '約 12 分鐘', note: '沿櫻田通直行即到東京鐵塔' } },
+                            { time: '18:00', item: '六本木晚餐 & 夜散步', loc: '六本木 Hills 周邊', toilet: '六本木 Hills 各樓層廁所充足', note: '高級餐廳群，夜景漂亮。長輩用餐後可在展望台休息。', img: IMG.roppongi, mapUrl: 'https://maps.google.com/?q=Roppongi+Hills+Tokyo', transit: { icon: '🚕', method: '計程車', duration: '約 5 分鐘', note: '東京鐵塔到六本木 Hills 步行約 15 分鐘，建議搭計程車' } },
+                            { time: '20:30', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 20:30 從六本木出發！搭計程車約 30 分鐘回飯店，五人分攤約 ¥1,400/人。建議用餐後不要拖延。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚕', method: '計程車', duration: '約 30 分鐘', note: '六本木搭計程車直達羽田機場飯店，五人分攤約 ¥1,400/人' } }
+                        ],
+                        Sun: [
+                            { time: '09:00', item: '品川水族館', loc: 'Maxell Aqua Park Shinagawa', toilet: '館內設有長椅休息區，看秀免久站', note: '品川站旁，室內聲光水母秀。離羽田僅 15 分鐘電車。', img: IMG.aquarium, mapUrl: 'https://maps.google.com/?q=Maxell+Aqua+Park+Shinagawa', transit: { icon: '🚝', method: '京急線', duration: '約 15 分鐘', note: '從羽田機場搭京急線直達品川站' } },
+                            { time: '11:00', item: '品川 Wing 快速掃貨', loc: 'Wing Takanawa', toilet: '站前商場，廁所密度高', note: '最後採買藥妝零食。完成後直接搭京急線回羽田。', img: IMG.shopping, mapUrl: 'https://maps.google.com/?q=Wing+Takanawa+Shinagawa', transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '水族館出來過馬路即到 Wing Takanawa' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '品川 → 羽田（京急線 15 分）', toilet: '羽田機場國際航廈設施完善', note: '品川離羽田超近！搭京急線或計程車皆可，輕鬆趕飛機。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚃', method: '京急線', duration: '約 15 分鐘', note: '品川站搭京急線直達羽田機場國際線航廈' } }
+                        ]
+                    }
+                },
+                B: {
+                    id: 'B',
+                    type: 'indoor',
+                    title: '方案 B：動畫根基與吉卜力迷蹤',
+                    subtitle: '三鷹 & 中野',
+                    desc: '適合喜愛宮崎駿與深度挖掘動漫歷史的家庭。需提早搶票！',
+                    recommended: false,
+                    chartData: [7, 9, 5, 6, 8, 4],
+                    schedule: {
+                        Sat: [
+                            { time: '10:00', item: '吉卜力美術館', loc: 'Ghibli Museum, Mitaka', toilet: '館內廁所精緻，園區有咖啡廳可久坐', note: '必須預約搶票！青少年朝聖地，長輩欣賞手工建築美學。', img: IMG.ghibli, mapUrl: 'https://maps.google.com/?q=Ghibli+Museum+Mitaka', transit: { icon: '🚃', method: 'JR 中央線 → 公車', duration: '約 50 分鐘', note: '從羽田搭京急→品川轉 JR 中央線到三鷹，再搭接駁公車' } },
+                            { time: '13:30', item: '吉祥寺午餐', loc: 'Kichijoji 商圈', toilet: '商店街內有公用廁所及百貨廁所', note: '在地美食天堂。推薦「いせや」烤雞串或「小ざさ」羊羹。', img: IMG.food, mapUrl: 'https://maps.google.com/?q=Kichijoji+Station+Tokyo', transit: { icon: '🚶', method: '步行 / 公車', duration: '約 15 分鐘', note: '從吉卜力美術館沿玉川上水步行到吉祥寺站' } },
+                            { time: '15:00', item: '杉並動畫博物館', loc: 'Suginami Animation Museum', toilet: '室內小型場館，安靜舒適', note: '免費參觀，介紹日本動畫製作過程。環境清幽，長輩也舒服。', img: IMG.anime, mapUrl: 'https://maps.google.com/?q=Suginami+Animation+Museum', transit: { icon: '🚃', method: 'JR 中央線', duration: '約 15 分鐘', note: '吉祥寺搭 JR 到荻窪站，再步行 5 分鐘' } },
+                            { time: '17:30', item: '吉祥寺商圈掃貨', loc: 'Kichijoji Sun Road', toilet: '百貨與藥妝店皆有廁所', note: '藥妝、雜貨天堂。全家人都好逛，長輩可在百貨休息區等。', img: IMG.street, mapUrl: 'https://maps.google.com/?q=Kichijoji+Sun+Road', transit: { icon: '🚃', method: 'JR 中央線', duration: '約 10 分鐘', note: '荻窪搭 JR 回吉祥寺站，出站即到商圈' } },
+                            { time: '19:30', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 19:30 從吉祥寺出發！吉祥寺離羽田較遠，需搭 JR 到品川再轉京急線，全程約 60 分鐘。建議掃貨時注意時間。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚃', method: 'JR 中央線 → 京急線', duration: '約 60 分鐘', note: '吉祥寺搭 JR 中央線到品川，轉京急線至羽田機場站' } }
+                        ],
+                        Sun: [
+                            { time: '09:30', item: '中野百老匯', loc: 'Nakano Broadway', toilet: '2 樓有舒適廁所，樓下有超市', note: '懷舊動漫聖地，二手公仔極多。長輩可逛樓下民生超市。', img: IMG.nakano, mapUrl: 'https://maps.google.com/?q=Nakano+Broadway', transit: { icon: '🚃', method: 'JR 中央線', duration: '約 25 分鐘', note: '從羽田搭京急→品川轉 JR 中央線到中野站' } },
+                            { time: '11:30', item: '新宿 3D 貓打卡', loc: 'Cross Shinjuku Vision', toilet: '新宿站各百貨廁所', note: '快速打卡巨型 3D 貓。', img: IMG.night_view, mapUrl: 'https://maps.google.com/?q=Cross+Shinjuku+Vision+3D+Cat', transit: { icon: '🚃', method: 'JR 中央線', duration: '約 5 分鐘', note: '中野→新宿僅一站' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '新宿 → 羽田（計程車約 40 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 新宿離羽田較遠，建議搭計程車（五人分攤約 ¥1,500/人）。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚕', method: '計程車', duration: '約 40 分鐘', note: '五人搭計程車最方便，分攤約 ¥1,500/人' } }
+                        ]
+                    }
+                },
+                C: {
+                    id: 'C',
+                    type: 'indoor',
+                    title: '方案 C：微縮世界與室內樂園',
+                    subtitle: '台場 & 豐洲',
+                    desc: '適合模型愛好者與想玩刺激室內遊樂的青少年。離羽田近！',
+                    recommended: false,
+                    chartData: [9, 7, 7, 8, 7, 9],
+                    schedule: {
+                        Sat: [
+                            { time: '10:30', item: 'Small Worlds Tokyo', loc: 'Small Worlds Tokyo（有明）', toilet: '館內有無障礙設施與沙發休息區', note: '世界最大室內微縮模型，有 EVA 專區！長輩也會驚嘆工藝。', img: IMG.miniature, mapUrl: 'https://maps.google.com/?q=Small+Worlds+Tokyo', transit: { icon: '🚝', method: '東京臨海線 → 百合海鷗號', duration: '約 35 分鐘', note: '羽田搭東京單軌到天王洲轉臨海線至東京テレポート，再轉百合海鷗號至有明' } },
+                            { time: '13:30', item: 'DiverCity 午餐', loc: 'DiverCity Tokyo Plaza', toilet: '商場內廁所豐富，有大型休息區', note: '美食街選擇多，可看窗外獨角獸鋼彈。全家都能找到喜歡的。', img: IMG.food, mapUrl: 'https://maps.google.com/?q=DiverCity+Tokyo+Plaza', transit: { icon: '🚶', method: '步行', duration: '約 10 分鐘', note: '有明地區步行至台場 DiverCity' } },
+                            { time: '15:00', item: '東京 Joypolis', loc: 'Tokyo Joypolis（DECKS）', toilet: 'DECKS 商場內廁所充足', note: 'SEGA 室內樂園，青少年尖叫首選。長輩可在外面看海休息。', img: IMG.arcade, mapUrl: 'https://maps.google.com/?q=Tokyo+Joypolis+Odaiba', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: 'DiverCity 沿海濱步道走到 DECKS' } },
+                            { time: '18:00', item: '台場一丁目老街 + 晚餐', loc: 'DECKS Tokyo Beach', toilet: '懷舊昭和風區，廁所好找', note: '復古雜貨與遊戲機，長輩能找回童心。晚餐可在此區解決。', img: IMG.street, mapUrl: 'https://maps.google.com/?q=DECKS+Tokyo+Beach', transit: { icon: '🚶', method: '同棟商場內', duration: '約 2 分鐘', note: '在 DECKS 同一棟內，搭電梯即達' } },
+                            { time: '21:00', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 21:00 從台場出發！台場離羽田非常近，搭計程車僅 20 分鐘。可以悠閒用完晚餐再走。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚕', method: '計程車', duration: '約 20 分鐘', note: '台場搭計程車直達羽田機場飯店，五人分攤約 ¥1,000/人' } }
+                        ],
+                        Sun: [
+                            { time: '09:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施非常新，廁所極乾淨', note: '江戶風美食街！長輩泡免費足湯看海，青少年吃海鮮丼。', img: IMG.toyosu, mapUrl: 'https://maps.google.com/?q=Toyosu+Senkyaku+Banrai', transit: { icon: '🚝', method: '百合海鷗號', duration: '約 20 分鐘', note: '台場搭百合海鷗號至市場前站' } },
+                            { time: '11:00', item: '最後掃貨', loc: 'DiverCity 或 LaLaport 豐洲', toilet: '商場內備有充足休息區', note: '最後購物機會。豐洲離羽田超近。', img: IMG.shopping, mapUrl: 'https://maps.google.com/?q=LaLaport+Toyosu', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '千客萬來旁即有 LaLaport 豐洲' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '豐洲/台場 → 羽田（計程車約 20 分）', toilet: '羽田機場國際航廈設施完善', note: '✅ 台場/豐洲距羽田非常近，計程車約 20 分鐘即達！', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚕', method: '計程車', duration: '約 20 分鐘', note: '豐洲到羽田非常近，五人搭車最方便' } }
+                        ]
+                    }
+                },
+                D: {
+                    id: 'D',
+                    type: 'outdoor',
+                    title: '方案 D：潮流原宿與神宮森林',
+                    subtitle: '原宿 & 澀谷',
+                    desc: '經典東京街頭文化之旅。青少年潮流天堂，但長輩需較多休息。',
+                    recommended: false,
+                    chartData: [9, 5, 4, 9, 10, 5],
+                    schedule: {
+                        Sat: [
+                            { time: '09:30', item: '明治神宮', loc: 'Meiji Jingu', toilet: '⚠️ 進入森林前需在車站先上廁所', note: '巨型鳥居，長輩散步呼吸芬多精。步道平緩但距離稍長。', img: IMG.meiji, mapUrl: 'https://maps.google.com/?q=Meiji+Jingu+Shrine', transit: { icon: '🚃', method: 'JR 山手線', duration: '約 35 分鐘', note: '羽田搭京急到品川，轉 JR 山手線到原宿站' } },
+                            { time: '11:30', item: '竹下通 / 裏原宿', loc: 'Takeshita Street', toilet: '建議去原宿車站或百貨公司廁所', note: '青少年潮流天堂！浮誇甜點、動漫服飾。長輩可在表參道咖啡廳等。', img: IMG.harajuku, mapUrl: 'https://maps.google.com/?q=Takeshita+Street+Harajuku', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '從明治神宮出口步行即到竹下通入口' } },
+                            { time: '14:00', item: '表參道午餐', loc: '表參道周邊餐廳', toilet: '百貨內廁所整潔', note: '建議選有座位的餐廳讓長輩好好休息。避免站著吃。', img: IMG.food, mapUrl: 'https://maps.google.com/?q=Omotesando+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '竹下通走到底即接表參道，沿街漫步' } },
+                            { time: '15:30', item: '澀谷十字路口 & SHIBUYA SKY', loc: 'Shibuya Crossing / SHIBUYA SKY', toilet: '星巴克或百貨廁所；SKY 室內有休息座', note: 'SHIBUYA SKY 需預約！360 度觀景看東京全景。傍晚時分最美。', img: IMG.shibuya, mapUrl: 'https://maps.google.com/?q=SHIBUYA+SKY', transit: { icon: '🚃', method: 'JR 山手線 / 步行', duration: '約 15 分鐘', note: '原宿→澀谷一站（3 分鐘），或沿 Cat Street 步行' } },
+                            { time: '18:30', item: '澀谷晚餐', loc: '澀谷站周邊', toilet: '各百貨商場廁所', note: '選擇多元，從居酒屋到家庭餐廳都有。', img: IMG.night_view, mapUrl: 'https://maps.google.com/?q=Shibuya+Station+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: 'SHIBUYA SKY 就在澀谷 Scramble Square，下樓即是' } },
+                            { time: '20:30', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 20:30 從澀谷出發！搭計程車約 30 分鐘回飯店。也可搭 JR 到品川轉京急線（約 40 分鐘），但計程車五人分攤更划算。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚕', method: '計程車', duration: '約 30 分鐘', note: '澀谷搭計程車直達羽田機場飯店，五人分攤約 ¥1,200/人' } }
+                        ],
+                        Sun: [
+                            { time: '09:00', item: '代代木公園晨散步', loc: 'Yoyogi Park', toilet: '⚠️ 公園廁所普通，建議在飯店先上', note: '若體力允許，可看日本街頭藝人表演。天氣好超舒服。', img: IMG.yoyogi, mapUrl: 'https://maps.google.com/?q=Yoyogi+Park+Tokyo', transit: { icon: '🚃', method: 'JR 山手線', duration: '約 35 分鐘', note: '羽田搭京急到品川，轉 JR 山手線到原宿站' } },
+                            { time: '10:30', item: '表參道咖啡 & 小購物', loc: 'Omotesando', toilet: '咖啡廳與百貨皆有廁所', note: '最後悠閒時光，買個伴手禮。', img: IMG.cafe, mapUrl: 'https://maps.google.com/?q=Omotesando+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '從代代木公園 ← 原宿口步行到表參道' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '澀谷 → 羽田（計程車約 30 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 澀谷到羽田約 30-40 分鐘車程，請預留充足時間。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚕', method: '計程車', duration: '約 30 分鐘', note: '表參道/澀谷搭計程車直達羽田，五人分攤約 ¥1,200/人' } }
+                        ]
+                    }
+                },
+                E: {
+                    id: 'E',
+                    type: 'outdoor',
+                    title: '方案 E：鋼彈鋼鐵與海風足湯',
+                    subtitle: '台場 & 豐洲',
+                    desc: '結合大型模型展示與最新江戶美食體驗。離羽田最近，回程零壓力！',
+                    recommended: true,
+                    chartData: [8, 9, 8, 7, 8, 10],
+                    schedule: {
+                        Sat: [
+                            { time: '10:00', item: '獨角獸鋼彈 1:1 展示', loc: 'Unicorn Gundam Statue（DiverCity 前）', toilet: 'DiverCity 商場廁所非常方便', note: '每到整點有變身音樂秀，震撼感十足！青少年必拍。', img: IMG.gundam, mapUrl: 'https://maps.google.com/?q=Unicorn+Gundam+Statue+Odaiba', transit: { icon: '🚝', method: '東京臨海線', duration: '約 30 分鐘', note: '羽田搭東京單軌到天王洲轉臨海線至東京テレポート站' } },
+                            { time: '12:30', item: 'DiverCity 午餐', loc: 'DiverCity Tokyo Plaza', toilet: '餐廳樓層廁所充足', note: '美食街選擇超多，五人各選各的也 OK。', img: IMG.food, mapUrl: 'https://maps.google.com/?q=DiverCity+Tokyo+Plaza', transit: { icon: '🚶', method: '步行（同商場）', duration: '約 2 分鐘', note: '鋼彈就在 DiverCity 正門口，直接進商場' } },
+                            { time: '14:00', item: '台場海濱公園散步', loc: 'Odaiba Marine Park', toilet: '沿海步道平坦，設有許多長凳', note: '遠眺彩虹大橋，適合長輩慢走。累了隨時坐下看海。', img: IMG.odaiba, mapUrl: 'https://maps.google.com/?q=Odaiba+Marine+Park', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: 'DiverCity 穿越自由女神像方向走到海邊' } },
+                            { time: '16:00', item: '鋼彈基地商店', loc: 'The Gundam Base Tokyo（DiverCity 7F）', toilet: '商場內', note: '鋼彈模型最齊全的地方！青少年掃貨地。長輩可逛其他樓層。', img: IMG.gundam, mapUrl: 'https://maps.google.com/?q=The+Gundam+Base+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '海濱公園走回 DiverCity，搭電梯到 7 樓' } },
+                            { time: '18:00', item: '台場晚餐 & 夜景', loc: 'Aqua City / DECKS', toilet: '商場廁所充足', note: '看著彩虹大橋夜景用餐，完美的週六夜晚。', img: IMG.night_view, mapUrl: 'https://maps.google.com/?q=Aqua+City+Odaiba', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: 'DiverCity 旁邊即是 Aqua City 與 DECKS' } },
+                            { time: '21:00', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 21:00 從台場出發！台場離羽田超近，計程車僅 15 分鐘。可以慢慢欣賞完彩虹大橋夜景再回飯店。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚕', method: '計程車', duration: '僅 15 分鐘！', note: '台場搭計程車直達羽田機場飯店，五人分攤約 ¥800/人' } }
+                        ],
+                        Sun: [
+                            { time: '09:00', item: '豐洲千客萬來', loc: 'Toyosu Senkyaku Banrai', toilet: '設施超新，廁所極乾淨', note: '江戶風美食街！長輩可泡免費足湯看海，青少年吃海鮮炸物。', img: IMG.toyosu, mapUrl: 'https://maps.google.com/?q=Toyosu+Senkyaku+Banrai', transit: { icon: '🚝', method: '百合海鷗號', duration: '約 20 分鐘', note: '台場搭百合海鷗號至市場前站，步行 3 分鐘' } },
+                            { time: '11:00', item: 'DiverCity 最後掃貨', loc: 'DiverCity Tokyo Plaza', toilet: '商場內備有充足休息區', note: '最後採買機會。', img: IMG.shopping, mapUrl: 'https://maps.google.com/?q=DiverCity+Tokyo+Plaza', transit: { icon: '🚝', method: '百合海鷗號', duration: '約 20 分鐘', note: '豐洲搭回台場站' } },
+                            { time: '12:00', item: '🚕 前往羽田機場', loc: '台場 → 羽田（計程車僅 15 分鐘！）', toilet: '羽田機場國際航廈設施完善', note: '✅ 這是所有方案中離羽田最近的！計程車 15 分鐘，零壓力趕飛機。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚕', method: '計程車', duration: '僅 15 分鐘！', note: '台場到羽田超近，五人搭車分攤約 ¥800/人' } }
+                        ]
+                    }
+                },
+                F: {
+                    id: 'F',
+                    type: 'outdoor',
+                    title: '方案 F：下町文化與未來水上船',
+                    subtitle: '淺草 & 隅田川',
+                    desc: '體驗日本傳統文化與最具特色的水上巴士。經典打卡路線。',
+                    recommended: false,
+                    chartData: [6, 8, 5, 6, 9, 5],
+                    schedule: {
+                        Sat: [
+                            { time: '09:30', item: '淺草寺 / 雷門', loc: 'Senso-ji', toilet: '觀光中心有乾淨廁所與電梯展望台', note: '經典地標！長輩求籤，青少年拍大燈籠。早上人潮較少。', img: IMG.asakusa, mapUrl: 'https://maps.google.com/?q=Senso-ji+Temple+Asakusa', transit: { icon: '🚃', method: '京急線 → 都營淺草線', duration: '約 40 分鐘', note: '羽田搭京急線直通都營淺草線到淺草站，免轉車' } },
+                            { time: '12:00', item: '淺草午餐', loc: '淺草周邊', toilet: '觀光區廁所多', note: '推薦天丼或蕎麥麵老店。建議提早用餐避開人潮。', img: IMG.food, mapUrl: 'https://maps.google.com/?q=Asakusa+Nakamise+Street', transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '淺草寺周邊即有大量餐廳' } },
+                            { time: '13:30', item: '淺草西參道商店街', loc: 'Nishisando Shopping Street', toilet: '木地板步道，對膝蓋友善', note: '祭典小遊戲（撈金魚、射擊），青少年會喜歡！', img: IMG.street, mapUrl: 'https://maps.google.com/?q=Asakusa+Nishi-sando+Shopping+Street', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '從淺草寺西側門走出即到西參道' } },
+                            { time: '15:30', item: '隅田川未來船', loc: 'Tokyo Cruise（淺草碼頭）', toilet: '船上有廁所，座位極舒適', note: '推薦「HIMIKO」或「EMERALDAS」！免走路直達台場。長輩最愛。', img: IMG.cruise, mapUrl: 'https://maps.google.com/?q=Tokyo+Cruise+Asakusa+Pier', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '從淺草寺走到吾妻橋旁的淺草碼頭' } },
+                            { time: '17:30', item: '台場晚餐 & 夜景', loc: 'Aqua City Odaiba', toilet: '商場廁所充足', note: '下船後直接在台場用晚餐看夜景。', img: IMG.night_view, mapUrl: 'https://maps.google.com/?q=Aqua+City+Odaiba', transit: { icon: '🚢', method: '水上巴士（HIMIKO）', duration: '約 50 分鐘', note: '淺草碼頭搭未來船直達台場海濱公園，免走路免轉車' } },
+                            { time: '20:30', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 20:30 從台場出發！台場離羽田非常近，搭計程車約 20 分鐘即回到飯店。夜景看完隨時出發。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚕', method: '計程車', duration: '約 20 分鐘', note: '台場搭計程車直達羽田機場飯店，五人分攤約 ¥1,000/人' } }
+                        ],
+                        Sun: [
+                            { time: '09:00', item: '東京晴空塔 & Solamachi', loc: 'Tokyo Skytree', toilet: '商場廁所多，指標清楚', note: '登頂看市景。下方 Solamachi 有極多動漫聯名店可掃貨。', img: IMG.skytree, mapUrl: 'https://maps.google.com/?q=Tokyo+Skytree', transit: { icon: '🚃', method: '百合海鷗號 → 押上線', duration: '約 35 分鐘', note: '台場搭百合海鷗號到新橋，轉都營淺草線到押上站' } },
+                            { time: '11:30', item: '隅田公園河邊咖啡', loc: 'Sumida Park', toilet: '河邊風景美，適合長輩小憩', note: '看著晴空塔喝咖啡，度過最後的東京時光。', img: IMG.cafe, mapUrl: 'https://maps.google.com/?q=Sumida+Park+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 10 分鐘', note: '從晴空塔沿北十間川步行到隅田公園' } },
+                            { time: '12:30', item: '🚕 前往羽田機場', loc: '押上 → 羽田（計程車約 35 分）', toilet: '羽田機場國際航廈設施完善', note: '⚠️ 晴空塔離羽田較遠，請務必準時離開避免趕飛機壓力。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚕', method: '計程車', duration: '約 35 分鐘', note: '押上搭計程車直達羽田，五人分攤約 ¥1,500/人' } }
+                        ]
+                    }
+                }
+            }
+        };
+
+        let currentActivePlanId = null;
+        let currentDayTab = 'Sat';
+        let radarChartInstance = null;
+
+        function filterPlans(type) {
+            const btnIndoor = document.getElementById('btn-indoor');
+            const btnOutdoor = document.getElementById('btn-outdoor');
+
+            if (type === 'indoor') {
+                btnIndoor.classList.add('ring-4', 'ring-sky-300', 'bg-sky-100');
+                btnOutdoor.classList.remove('ring-4', 'ring-amber-300', 'bg-amber-100');
+            } else {
+                btnOutdoor.classList.add('ring-4', 'ring-amber-300', 'bg-amber-100');
+                btnIndoor.classList.remove('ring-4', 'ring-sky-300', 'bg-sky-100');
+            }
+
+            const container = document.getElementById('plan-cards-container');
+            container.innerHTML = '';
+            container.classList.remove('hidden');
+
+            let firstPlanId = null;
+
+            for (const [id, plan] of Object.entries(reportData.plans)) {
+                if (plan.type === type) {
+                    if (!firstPlanId) firstPlanId = id;
+                    const card = document.createElement('div');
+                    card.className = `interactive-card bg-white rounded-xl border-2 ${plan.recommended ? 'border-emerald-300' : 'border-stone-200'} p-5 ${currentActivePlanId === id ? 'selected-card' : ''}`;
+                    card.id = `card-${id}`;
+                    card.onclick = () => selectPlan(id);
+
+                    const icon = type === 'indoor' ? '🏛️' : '🌳';
+                    const badge = plan.recommended ? '<span class="badge-recommended">🏆 最推薦</span>' : '';
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">${icon}</span>
+                            <h3 class="font-bold text-lg text-stone-800">方案 ${id}</h3>
+                            ${badge}
+                        </div>
+                        <p class="font-semibold text-stone-600 mb-2">${plan.subtitle}</p>
+                        <p class="text-sm text-stone-500">${plan.desc}</p>
+                    `;
+                    container.appendChild(card);
+                }
+            }
+
+            if (firstPlanId && (!currentActivePlanId || reportData.plans[currentActivePlanId].type !== type)) {
+                selectPlan(firstPlanId);
+            }
+        }
+
+        function selectPlan(id) {
+            currentActivePlanId = id;
+            currentDayTab = 'Sat';
+
+            document.querySelectorAll('#plan-cards-container > div').forEach(el => {
+                el.classList.remove('selected-card');
+            });
+            const activeCard = document.getElementById(`card-${id}`);
+            if (activeCard) activeCard.classList.add('selected-card');
+
+            const section = document.getElementById('detail-section');
+            section.classList.remove('hidden');
+
+            const plan = reportData.plans[id];
+            const badge = plan.recommended ? ' 🏆' : '';
+            document.getElementById('detail-title').innerText = plan.title + badge;
+            document.getElementById('detail-desc').innerText = plan.desc;
+
+            document.getElementById('tab-sat').classList.add('tab-active');
+            document.getElementById('tab-sun').classList.remove('tab-active');
+
+            renderSchedule();
+            updateChart(plan);
+
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function switchDay(day) {
+            currentDayTab = day;
+            document.getElementById('tab-sat').classList.remove('tab-active');
+            document.getElementById('tab-sun').classList.remove('tab-active');
+
+            if (day === 'Sat') document.getElementById('tab-sat').classList.add('tab-active');
+            if (day === 'Sun') document.getElementById('tab-sun').classList.add('tab-active');
+
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            if (!currentActivePlanId) return;
+            const plan = reportData.plans[currentActivePlanId];
+            const scheduleData = plan.schedule[currentDayTab];
+            const container = document.getElementById('schedule-container');
+
+            container.innerHTML = '';
+
+            // Determine default origin for first item of each day
+            const hotelName = 'Haneda+Airport+Tokyo';
+
+            scheduleData.forEach((item, index) => {
+                // Add transit connector before this item (if transit data exists)
+                if (item.transit) {
+                    const transitEl = document.createElement('div');
+                    transitEl.className = 'transit-connector';
+                    transitEl.style.animationDelay = `${index * 0.08 - 0.04}s`;
+                    const transitNoteHtml = item.transit.note ? `<span class="transit-note">· ${item.transit.note}</span>` : '';
+
+                    // Build Google Maps Directions URL dynamically
+                    let originQuery = hotelName;
+                    if (index > 0) {
+                        const prevItem = scheduleData[index - 1];
+                        originQuery = (prevItem.mapUrl || '').replace('https://maps.google.com/?q=', '') || prevItem.loc.replace(/ /g, '+');
+                    }
+                    const destQuery = (item.mapUrl || '').replace('https://maps.google.com/?q=', '') || item.loc.replace(/ /g, '+');
+                    const travelMode = item.transit.method.includes('步行') ? 'walking' : (item.transit.method.includes('計程車') ? 'driving' : 'transit');
+                    const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originQuery}&destination=${destQuery}&travelmode=${travelMode}`;
+
+                    transitEl.innerHTML = `
+                        <span class="transit-icon">${item.transit.icon}</span>
+                        <span class="transit-method">${item.transit.method}</span>
+                        <span class="transit-duration">${item.transit.duration}</span>
+                        ${transitNoteHtml}
+                        <a href="${directionsUrl}" target="_blank" rel="noopener noreferrer" class="transit-route-btn">🗺️ 查看路線</a>
+                    `;
+                    container.appendChild(transitEl);
+                }
+
+                const el = document.createElement('div');
+                el.className = 'flex gap-4 fade-in';
+                el.style.animationDelay = `${index * 0.08}s`;
+
+                const isAirport = item.item.includes('前往羽田');
+                const cardBg = isAirport ? 'bg-sky-50 border-sky-200' : 'bg-stone-50 border-stone-100';
+                const timeColor = isAirport ? 'text-sky-600' : 'text-sky-700';
+
+                const imgHtml = item.img ? `<img src="${item.img}" alt="${item.item}" loading="lazy" class="w-full h-36 object-cover rounded-lg mb-3" onerror="this.style.display='none'">` : '';
+
+                el.innerHTML = `
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 text-right font-bold ${timeColor} pt-1">${item.time}</div>
+                        <div class="h-full w-px bg-stone-200 my-2"></div>
+                    </div>
+                    <div class="flex-1 ${cardBg} rounded-xl p-4 border overflow-hidden">
+                        ${imgHtml}
+                        <h4 class="text-lg font-bold text-stone-800 mb-1">${item.item}</h4>
+                        <div class="text-sm text-stone-500 mb-3 flex items-center gap-2 flex-wrap">
+                            <span class="flex items-center gap-1"><span>🗺️</span> <span class="font-mono bg-stone-200/60 px-1.5 py-0.5 rounded text-xs">${item.loc}</span></span>
+                            ${item.mapUrl ? `<a href="${item.mapUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors border border-blue-200" style="text-decoration:none">📍 Google Map</a>` : ''}
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-sm text-stone-700"><span class="font-semibold text-stone-800">📝 備註：</span>${item.note}</p>
+                            <p class="text-sm text-amber-700 bg-amber-50 p-2 rounded"><span class="font-semibold">🚻 長輩/廁所：</span>${item.toilet}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function updateChart(plan) {
+            const ctx = document.getElementById('vibeChart').getContext('2d');
+            const data = {
+                labels: ['👦 青少年喜愛度', '👵 長輩舒適度', '🚶 體力友善度', '🛍️ 購物便利性', '📸 拍照打卡度', '✈️ 回程便利度'],
+                datasets: [{
+                    label: `方案 ${plan.id}`,
+                    data: plan.chartData,
+                    backgroundColor: plan.recommended ? 'rgba(5, 150, 105, 0.15)' : 'rgba(2, 132, 199, 0.15)',
+                    borderColor: plan.recommended ? 'rgba(5, 150, 105, 1)' : 'rgba(2, 132, 199, 1)',
+                    pointBackgroundColor: plan.recommended ? 'rgba(5, 150, 105, 1)' : 'rgba(2, 132, 199, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: plan.recommended ? 'rgba(5, 150, 105, 1)' : 'rgba(2, 132, 199, 1)',
+                    borderWidth: 2.5
+                }]
+            };
+
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0,0,0,0.08)' },
+                            grid: { color: 'rgba(0,0,0,0.08)' },
+                            pointLabels: {
+                                font: { size: 11, family: "'Noto Sans TC', sans-serif" },
+                                color: '#57534e'
+                            },
+                            ticks: {
+                                min: 0,
+                                max: 10,
+                                stepSize: 2,
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(28, 25, 23, 0.9)',
+                            padding: 12,
+                            titleFont: { size: 13, family: "'Noto Sans TC', sans-serif" },
+                            bodyFont: { size: 13, family: "'Noto Sans TC', sans-serif" }
+                        }
+                    }
+                }
+            };
+
+            if (radarChartInstance) {
+                radarChartInstance.data.datasets[0].data = plan.chartData;
+                radarChartInstance.data.datasets[0].label = `方案 ${plan.id}`;
+                radarChartInstance.data.datasets[0].backgroundColor = plan.recommended ? 'rgba(5, 150, 105, 0.15)' : 'rgba(2, 132, 199, 0.15)';
+                radarChartInstance.data.datasets[0].borderColor = plan.recommended ? 'rgba(5, 150, 105, 1)' : 'rgba(2, 132, 199, 1)';
+                radarChartInstance.data.datasets[0].pointBackgroundColor = plan.recommended ? 'rgba(5, 150, 105, 1)' : 'rgba(2, 132, 199, 1)';
+                radarChartInstance.data.datasets[0].pointHoverBorderColor = plan.recommended ? 'rgba(5, 150, 105, 1)' : 'rgba(2, 132, 199, 1)';
+                radarChartInstance.update();
+            } else {
+                radarChartInstance = new Chart(ctx, config);
+            }
+        }
+
+        // Activate fade-in animations on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
