@@ -1072,9 +1072,19 @@
             arcade: WM('Sega Joypolis Odaiba.jpg'),
             miniature: WM('SMALL WORLDS Miniature Museum 01.jpg'),
             nakano: WM('Nakano broadway entrance.JPG'),
-            toyosu: WM('Nakamise1411.jpg'),
+                        kinshicho: WM('Kinshicho Station South Exit 201804.jpg'),
+            toyosu: WM('Toyosu Market Tokyo 2.jpg'),
             night_view: WM('Tokyo Tower, Minato City.jpg'),
-            yoyogi: WM('Shinjuku Gyoen National Garden and NTT DoCoMo Yoyogi Building, Tokyo, Japan.jpg'),
+            yoyogi: WM('Yoyogi Park exit.jpg'),
+            ginza: WM('Illuminated street corner at blue hour - facade of the building Fujiya in Ginza Chuo-ku Tokyo Japan.jpg'),
+            shinjuku: WM('Night in Shinjuku 3.JPG'),
+            odaiba_night: WM('Rainbow Bridge by night seen from Odaiba side.jpg'),
+            lalaport: WM('Urban Dock LaLaport Toyosu3.JPG'),
+            solamachi: WM('Jump Shop Tokyo Solamachi 20250831 124823.jpg'),
+            omotesando: WM('Street crowd reflecting in the polyhedral mirrors of the station Tokyu Plaza Omotesando, Harajuku, Tokyo, Japan.jpg'),
+            shinagawa: WM('Prince Hotel Shinagawa and Wing Takanawa West (20230802073625).jpg'),
+            ariake: WM('Ariake Garden 5F ARIAKE Diner 2024.jpg'),
+            kichijoji: WM('Yoshinoya Kichijoji North 20150404.jpg'),
         };
 
         const reportData = {
@@ -1097,7 +1107,7 @@
                         ],
                         Sun: [
                             { time: '09:00', item: '品川水族館', loc: 'Maxell Aqua Park Shinagawa', toilet: '館內設有長椅休息區，看秀免久站', note: '品川站旁，室內聲光水母秀。離羽田僅 15 分鐘電車。', img: IMG.aquarium, mapUrl: 'https://maps.google.com/?q=Maxell+Aqua+Park+Shinagawa', transit: { icon: '🚝', method: '京急線', duration: '約 15 分鐘', note: '從羽田機場搭京急線直達品川站' } },
-                            { time: '11:00', item: '品川 Wing 快速掃貨', loc: 'Wing Takanawa', toilet: '站前商場，廁所密度高', note: '最後採買藥妝零食。完成後直接搭京急線回羽田。', img: IMG.shopping, mapUrl: 'https://maps.google.com/?q=Wing+Takanawa+Shinagawa', transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '水族館出來過馬路即到 Wing Takanawa' } },
+                            { time: '11:00', item: '品川 Wing 快速掃貨', loc: 'Wing Takanawa', toilet: '站前商場，廁所密度高', note: '最後採買藥妝零食。完成後直接搭京急線回羽田。', img: IMG.shinagawa, mapUrl: 'https://maps.google.com/?q=Wing+Takanawa+Shinagawa', transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '水族館出來過馬路即到 Wing Takanawa' } },
                             { time: '12:00', item: '🚕 前往羽田機場', loc: '品川 → 羽田（京急線 15 分）', toilet: '羽田機場國際航廈設施完善', note: '品川離羽田超近！搭京急線或計程車皆可，輕鬆趕飛機。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚃', method: '京急線', duration: '約 15 分鐘', note: '品川站搭京急線直達羽田機場國際線航廈' } }
                         ]
                     }
@@ -1163,7 +1173,7 @@
                             { time: '14:00', item: '表參道午餐', loc: '表參道周邊餐廳', toilet: '百貨內廁所整潔', note: '建議選有座位的餐廳讓長輩好好休息。避免站著吃。', img: IMG.food, mapUrl: 'https://maps.google.com/?q=Omotesando+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 8 分鐘', note: '竹下通走到底即接表參道，沿街漫步' } },
                             { time: '15:30', item: '澀谷十字路口 & SHIBUYA SKY', loc: 'Shibuya Crossing / SHIBUYA SKY', toilet: '星巴克或百貨廁所；SKY 室內有休息座', note: 'SHIBUYA SKY 需預約！360 度觀景看東京全景。傍晚時分最美。', img: IMG.shibuya, mapUrl: 'https://maps.google.com/?q=SHIBUYA+SKY', transit: { icon: '🚃', method: 'JR 山手線 / 步行', duration: '約 15 分鐘', note: '原宿→澀谷一站（3 分鐘），或沿 Cat Street 步行' } },
                             { time: '17:00', item: '澀谷唱片行巡禮', loc: 'Tower Records / Disk Union', toilet: 'Tower Records 內部設有廁所與休息區', note: '這區是唱片迷聖地！9層樓的 Tower Records 及數間專攻黑膠的 Disk Union (Shibuya) 都在步行 3 分鐘內。', img: IMG.records, mapUrl: 'https://maps.google.com/?q=Tower+Records+Shibuya', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '從 SHIBUYA SKY 走過十字路口即可抵達' } },
-                            { time: '18:45', item: '澀谷晚餐', loc: '澀谷站周邊', toilet: '各百貨商場廁所', note: '選擇多元，從居酒屋到家庭餐廳都有。', img: IMG.night_view, mapUrl: 'https://maps.google.com/?q=Shibuya+Station+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '唱片行周邊有豐富的用餐選擇' } },
+                            { time: '18:45', item: '澀谷晚餐', loc: '澀谷站周邊', toilet: '各百貨商場廁所', note: '選擇多元，從居酒屋到家庭餐廳都有。', img: IMG.shibuya, mapUrl: 'https://maps.google.com/?q=Shibuya+Station+Tokyo', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '唱片行周邊有豐富的用餐選擇' } },
                             { time: '20:30', item: '🏨 返回飯店', loc: 'Hotel Villa Fontaine Grand 羽田空港', toilet: '飯店大廳有舒適休息區', note: '⏰ 最晚 20:30 從澀谷出發！搭計程車約 30 分鐘回飯店。也可搭 JR 到品川轉京急線（約 40 分鐘），但計程車五人分攤更划算。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚕', method: '計程車', duration: '約 30 分鐘', note: '澀谷搭計程車直達羽田機場飯店，五人分攤約 ¥1,200/人' } }
                         ],
                         Sun: [
@@ -1321,8 +1331,22 @@
 
             container.innerHTML = '';
 
+
             // Determine default origin for first item of each day
             const hotelName = 'Haneda+Airport+Tokyo';
+
+            // Feature 4: Full Day Route Button
+            let unifiedRouteQuery = scheduleData.map(item => {
+                return (item.mapUrl || '').replace('https://maps.google.com/?q=', '') || item.loc.replace(/ /g, '+');
+            }).filter(loc => loc && !loc.includes('%E5%8F%AF%E9%81%B8') && !loc.includes('可選')).join('/');
+            
+            const unifiedDirectionsUrl = `https://www.google.com/maps/dir/${hotelName}/${unifiedRouteQuery}`;
+
+            const topRouteBtn = document.createElement('div');
+            topRouteBtn.className = 'w-full mb-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-all hover:-translate-y-0.5 fade-in';
+            topRouteBtn.innerHTML = `<a href="${unifiedDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="block w-full h-full font-bold text-base text-white text-center py-3" style="text-decoration:none">🗺️ 開啟本日完整全線導航地圖</a>`;
+            container.appendChild(topRouteBtn);
+
 
             scheduleData.forEach((item, index) => {
                 // Add transit connector before this item (if transit data exists)
@@ -1462,5 +1486,69 @@
             observer.observe(el);
         });
     </script>
+
+    <!-- Feature 3: Emergency & Travel Phrases Widget -->
+    <button onclick="document.getElementById('emergencyModal').classList.remove('hidden')" class="fixed bottom-6 right-6 bg-teal-600 text-white p-4 rounded-full shadow-xl hover:bg-teal-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-2" style="border: 2px solid #fff;">
+        <span class="text-2xl">🗣️</span> <span class="font-bold pr-1 drop-shadow-md">實用翻譯卡</span>
+    </button>
+
+    <div id="emergencyModal" class="fixed inset-0 bg-stone-900/70 z-50 flex items-center justify-center hidden backdrop-blur-sm" onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden m-4 flex flex-col max-h-[85vh]">
+            <div class="bg-stone-100 px-4 py-3 flex justify-between items-center border-b">
+                <h3 class="font-bold text-lg text-stone-800">🗣️ 實用日語與求助</h3>
+                <button onclick="document.getElementById('emergencyModal').classList.add('hidden')" class="text-stone-400 hover:text-stone-700 font-bold text-xl px-2">✕</button>
+            </div>
+            
+            <div class="overflow-y-auto p-4 space-y-4 pb-8">
+                <div>
+                    <h4 class="text-sm font-bold text-teal-700 mb-2 border-b-2 border-teal-100 pb-1">點餐 / 餐廳</h4>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border">
+                        <span class="font-black text-xl text-stone-800">わさび抜きでお願いします。</span>
+                        <span class="text-sm text-stone-500">請不要加芥末 (Wasabi nuki de)</span>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border mt-2">
+                        <span class="font-black text-xl text-stone-800">お会計をお願いします。</span>
+                        <span class="text-sm text-stone-500">麻煩結帳 (Okaikei o)</span>
+                        <div class="h-px bg-stone-200 my-2"></div>
+                        <span class="font-black text-xl text-stone-800">クレジットカードは使えますか？</span>
+                        <span class="text-sm text-stone-500">可以使用信用卡嗎？</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-teal-700 mb-2 border-b-2 border-teal-100 pb-1">購物 / 生活</h4>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border">
+                        <span class="font-black text-xl text-stone-800">トイレはどこですか？</span>
+                        <span class="text-sm text-stone-500">請問廁所在哪裡？ (Toire wa doko desu ka)</span>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border mt-2">
+                        <span class="font-black text-xl text-stone-800">袋をください。</span>
+                        <span class="text-sm text-stone-500">請給我一個袋子 (就算要錢也沒關係)</span>
+                    </div>
+                    <div class="bg-stone-50 p-3 rounded-lg flex flex-col gap-1 border mt-2">
+                        <span class="font-black text-xl text-stone-800">免税（Tax Free）できますか？</span>
+                        <span class="text-sm text-stone-500">請問可以退稅嗎？</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-rose-700 mb-2 border-b-2 border-rose-100 pb-1 px-1 mt-4">🚨 緊急聯絡</h4>
+                    <div class="grid grid-cols-2 gap-2 text-center text-sm">
+                        <a href="tel:119" class="bg-rose-50 text-rose-700 py-2 rounded border border-rose-200 font-bold hover:bg-rose-100 shadow-sm flex items-center justify-center gap-1"><span class="text-lg">🚑</span> 119 救護/消防</a>
+                        <a href="tel:110" class="bg-sky-50 text-sky-700 py-2 rounded border border-sky-200 font-bold hover:bg-sky-100 shadow-sm flex items-center justify-center gap-1"><span class="text-lg">🚓</span> 110 報案/警察</a>
+                    </div>
+                    <div class="mt-2 bg-stone-50 p-3 rounded-lg border text-sm text-stone-700 text-center relative overflow-hidden">
+                        <span class="font-bold flex items-center justify-center text-stone-800 mb-1 gap-1"><span class="text-lg">🇹🇼</span> 台北駐日經濟文化代表處</span>
+                        <a href="tel:03-3280-7811" class="text-blue-600 block mb-1">一般電話：03-3280-7811</a>
+                        <div class="bg-rose-100/50 -mx-3 p-2 mt-2 font-mono font-semibold">
+                            急難救助：<br>
+                            <a href="tel:080-1009-7179" class="text-rose-700">080-1009-7179</a><br>
+                            <a href="tel:080-1009-7436" class="text-rose-700">080-1009-7436</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
