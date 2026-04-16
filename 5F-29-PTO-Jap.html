@@ -1308,6 +1308,7 @@
                     </div>
                 `;
                 container.appendChild(el);
+                if (fadeObserver) fadeObserver.observe(el);
             });
         }
 
