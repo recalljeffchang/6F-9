@@ -54,12 +54,13 @@
             box-shadow: 0 0 0 2px var(--primary-light);
         }
         .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
             opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         .tab-active {
             border-bottom: 3px solid var(--primary-light);
@@ -146,8 +147,7 @@
             border-radius: 0 8px 8px 0;
             font-size: 0.82rem;
             color: #0369a1;
-            animation: fadeIn 0.3s ease-out forwards;
-            opacity: 0;
+            transition: opacity 0.3s ease-out;
         }
         .transit-connector .transit-icon {
             font-size: 1.2rem;
@@ -221,7 +221,7 @@
     <div class="max-w-6xl mx-auto px-4 pb-12">
 
         <!-- Section 1: 交通動線 -->
-        <section class="mb-10 fade-in" style="animation-delay:0.1s">
+        <section class="mb-10 fade-in">
             <div class="section-card">
                 <h2 class="text-2xl font-bold text-stone-800 mb-2">🚄 交通動線總覽</h2>
                 <p class="text-stone-500 mb-8">無論選擇哪個行程方案，去回程交通動線皆相同。</p>
@@ -566,7 +566,7 @@
         </section>
 
         <!-- Section 2: 天氣選擇 -->
-        <section class="mb-10 fade-in" style="animation-delay:0.2s">
+        <section class="mb-10 fade-in">
             <div class="section-card">
                 <h2 class="text-2xl font-bold text-stone-800 mb-2">☁️ 第一步：確認天氣狀況</h2>
                 <p class="text-stone-500 mb-6">
@@ -628,7 +628,7 @@
         </section>
 
         <!-- Section 4: 執行錦囊 -->
-        <section class="fade-in" style="animation-delay:0.3s">
+        <section class="fade-in">
             <div class="bg-stone-800 text-stone-50 rounded-2xl shadow-lg p-6 md:p-8">
                 <h2 class="text-2xl font-bold mb-2 text-amber-400">💡 14H 快閃執行錦囊</h2>
                 <p class="text-stone-400 mb-6">五人家庭（含長輩）在極短時間內完成東京快閃的通用黃金策略。</p>
@@ -666,7 +666,7 @@
         </section>
 
         <!-- Section 5: 費用估算報告 -->
-        <section class="fade-in" style="animation-delay:0.35s">
+        <section class="fade-in">
             <div class="section-card">
                 <h2 class="text-2xl font-bold text-stone-800 mb-2">💰 交通・住宿・費用估算報告</h2>
                 <p class="text-stone-500 mb-6">五人家庭（2 大人 + 3 青少年）兩天一夜東京快閃行程的完整費用預估。幣值：台幣（NT$）/ 日圓（¥）。匯率參考：¥1 ≈ NT$0.22</p>
@@ -941,7 +941,7 @@
         </section>
 
         <!-- Section 6: 出發前作戰檢查清單 -->
-        <section class="fade-in" style="animation-delay:0.4s">
+        <section class="fade-in">
             <div class="section-card">
                 <h2 class="text-2xl font-bold text-stone-800 mb-2">📋 出發前作戰檢查清單</h2>
                 <p class="text-stone-500 mb-6">確保萬無一失的行政與隨身物品確認表，勾選完成即可安心出發。</p>
@@ -1476,13 +1476,13 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1 });
 
         document.querySelectorAll('.fade-in').forEach(el => {
-            el.style.animationPlayState = 'paused';
             observer.observe(el);
         });
     </script>
