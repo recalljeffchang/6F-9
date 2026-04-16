@@ -1235,6 +1235,7 @@
         };
 
         let currentActivePlanId = null;
+        let fadeObserver = null;
         let currentDayTab = 'Sat';
         let radarChartInstance = null;
 
@@ -1346,6 +1347,7 @@
             topRouteBtn.className = 'w-full mb-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-all hover:-translate-y-0.5 fade-in';
             topRouteBtn.innerHTML = `<a href="${unifiedDirectionsUrl}" target="_blank" rel="noopener noreferrer" class="block w-full h-full font-bold text-base text-white text-center py-3" style="text-decoration:none">🗺️ 開啟本日完整全線導航地圖</a>`;
             container.appendChild(topRouteBtn);
+            if (fadeObserver) fadeObserver.observe(topRouteBtn);
 
 
             scheduleData.forEach((item, index) => {
@@ -1473,17 +1475,17 @@
         }
 
         // Activate fade-in animations on scroll
-        const observer = new IntersectionObserver((entries) => {
+        fadeObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
+                    fadeObserver.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1 });
 
         document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
+            fadeObserver.observe(el);
         });
     </script>
 
