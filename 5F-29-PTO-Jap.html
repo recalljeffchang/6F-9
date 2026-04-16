@@ -191,7 +191,19 @@
             color: white;
             border-color: #1d4ed8;
         }
-    </style>
+            @keyframes flashHighlight {
+            0% { box-shadow: 0 0 0px 4px rgba(251, 191, 36, 0); }
+            10% { box-shadow: 0 0 0px 4px rgba(251, 191, 36, 1); transform: scale(1.02); }
+            50% { box-shadow: 0 0 20px 8px rgba(251, 191, 36, 0.8); }
+            90% { box-shadow: 0 0 0px 4px rgba(251, 191, 36, 1); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0px 4px rgba(251, 191, 36, 0); transform: scale(1); }
+        }
+        .highlight-flash {
+            animation: flashHighlight 3s ease-in-out;
+            border-color: #f59e0b !important;
+            z-index: 10;
+        }
+</style>
 </head>
 <body class="antialiased">
 
@@ -1132,6 +1144,7 @@
         };
 
         let currentActivePlanId = null;
+        let highlightTargetItem = null;
         let fadeObserver = null;
         let currentDayTab = 'Fri';
         let radarChartInstance = null;
@@ -1295,6 +1308,10 @@
 
                 const el = document.createElement('div');
                 el.className = 'flex gap-4 fade-in';
+                if (highlightTargetItem && item.item === highlightTargetItem) {
+                    el.id = 'highlighted-item';
+                    el.className += ' highlight-flash';
+                }
                 el.style.animationDelay = `${index * 0.08}s`;
 
                 const isAirport = item.item.includes('前往羽田');
@@ -1471,5 +1488,94 @@
             </div>
         </div>
     </div>
+
+    <!-- Feature 5: Search Attraction Widget -->
+    <button onclick="document.getElementById('searchModal').classList.remove('hidden'); document.getElementById('searchInput').focus();" class="fixed bottom-6 left-6 bg-stone-800 text-white p-4 rounded-full shadow-xl hover:bg-stone-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-2" style="border: 2px solid #fff;">
+        <span class="text-2xl">🔍</span> <span class="font-bold pr-1 drop-shadow-md">找景點</span>
+    </button>
+
+    <div id="searchModal" class="fixed inset-0 bg-stone-900/80 z-50 flex items-center justify-center hidden bdblur" onclick="if(event.target===this) this.classList.add('hidden')">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden m-4 flex flex-col h-[75vh]">
+            <div class="bg-stone-800 px-4 py-4 flex justify-between items-center border-b shadow-md">
+                <h3 class="font-bold text-lg text-white">🔍 全域景點搜尋</h3>
+                <button onclick="document.getElementById('searchModal').classList.add('hidden')" class="text-stone-300 hover:text-white font-bold text-xl px-2">✕</button>
+            </div>
+            
+            <div class="p-4 border-b bg-stone-50">
+                <input type="text" id="searchInput" placeholder="輸入想找的景點 (如: 澀谷、鋼彈)..." class="w-full px-4 py-3 rounded-xl border-2 border-stone-300 focus:border-blue-500 focus:ring-0 transition-colors text-lg" oninput="performSearch(this.value)">
+            </div>
+
+            <div id="searchResults" class="overflow-y-auto p-2 space-y-2 flex-1 bg-stone-100">
+                <div class="text-center text-stone-400 mt-10">請在上列輸入關鍵字</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function performSearch(keyword) {
+            const resultsContainer = document.getElementById('searchResults');
+            const term = keyword.trim().toLowerCase();
+            
+            if (!term) {
+                resultsContainer.innerHTML = '<div class="text-center text-stone-400 mt-10">請在上列輸入關鍵字</div>';
+                return;
+            }
+
+            let resultsHtml = '';
+            let count = 0;
+
+            for (const [planId, planObj] of Object.entries(reportData.plans)) {
+                for (const [dayKey, dayArr] of Object.entries(planObj.schedule)) {
+                    dayArr.forEach(item => {
+                        if (item.item.toLowerCase().includes(term) || item.loc.toLowerCase().includes(term) || (item.note && item.note.toLowerCase().includes(term))) {
+                            let dayName = dayKey === 'Fri' ? '週五' : (dayKey === 'Sat' ? '週六' : '週日');
+                            resultsHtml += `
+                                <div onclick="gotoLocation('${planId}', '${dayKey}', '${item.item.replace(/'/g, "\'")}')" class="bg-white p-3 rounded-xl shadow-sm border border-stone-200 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                                    <div class="text-xs font-bold text-blue-600 mb-1 border-b pb-1">${planObj.title} | ${dayName} ${item.time}</div>
+                                    <h4 class="font-bold text-stone-800 text-lg">${item.item}</h4>
+                                    <div class="text-sm text-stone-500 mt-1">📍 ${item.loc}</div>
+                                </div>
+                            `;
+                            count++;
+                        }
+                    });
+                }
+            }
+
+            if (count === 0) {
+                resultsContainer.innerHTML = '<div class="text-center text-stone-400 mt-10">找不到符合的景點 🤔</div>';
+            } else {
+                resultsContainer.innerHTML = resultsHtml;
+            }
+        }
+
+        function gotoLocation(planId, dayKey, targetItemName) {
+            // 1. Close Modal
+            document.getElementById('searchModal').classList.add('hidden');
+            
+            // 2. Set Highlight Target Globally
+            highlightTargetItem = targetItemName;
+            
+            // 3. Switch Plan if different
+            if (currentActivePlanId !== planId) {
+                switchPlan(planId);
+                // switchPlan also calls renderSchedule, but it picks the currentDayTab.
+            }
+            
+            // 4. Switch Day (This will call renderSchedule again)
+            switchDay(dayKey);
+            
+            // 5. Provide a short timeout to let DOM render and scroll
+            setTimeout(() => {
+                const targetEl = document.getElementById('highlighted-item');
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Highlight is automatically applied in renderSchedule CSS matching ID.
+                }
+                // Reset so it doesn't flash again if they just click tabs later.
+                highlightTargetItem = null;
+            }, 150);
+        }
+    </script>
 </body>
 </html>
