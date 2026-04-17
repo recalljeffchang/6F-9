@@ -1464,8 +1464,8 @@
     </script>
 
     <!-- Feature 3: Emergency & Travel Phrases Widget -->
-    <button onclick="document.getElementById('emergencyModal').classList.remove('hidden')" class="fixed bottom-6 right-6 bg-teal-600 text-white p-4 rounded-full shadow-xl hover:bg-teal-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-2" style="border: 2px solid #fff;">
-        <span class="text-2xl">🗣️</span> <span class="font-bold pr-1 drop-shadow-md">實用翻譯卡</span>
+    <button onclick="document.getElementById('emergencyModal').classList.remove('hidden')" class="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 bg-teal-600 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-full shadow-xl hover:bg-teal-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-1.5" style="border: 1.5px solid rgba(255,255,255,0.8);">
+        <span class="text-lg sm:text-2xl">🗣️</span> <span class="text-sm sm:text-base font-bold pr-1 drop-shadow-md">實用翻譯</span>
     </button>
 
     <div id="emergencyModal" class="fixed inset-0 bg-stone-900/70 z-50 flex items-center justify-center hidden backdrop-blur-sm" onclick="if(event.target===this) this.classList.add('hidden')">
@@ -1528,8 +1528,8 @@
     </div>
 
     <!-- Feature 5: Search Attraction Widget -->
-    <button onclick="document.getElementById('searchModal').classList.remove('hidden'); document.getElementById('searchInput').focus();" class="fixed bottom-6 left-6 bg-stone-800 text-white p-4 rounded-full shadow-xl hover:bg-stone-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-2" style="border: 2px solid #fff;">
-        <span class="text-2xl">🔍</span> <span class="font-bold pr-1 drop-shadow-md">找景點</span>
+    <button onclick="document.getElementById('searchModal').classList.remove('hidden'); document.getElementById('searchInput').focus();" class="fixed bottom-3 left-3 sm:bottom-6 sm:left-6 bg-stone-800 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-full shadow-xl hover:bg-stone-700 hover:scale-105 transition-all z-40 flex items-center justify-center gap-1.5" style="border: 1.5px solid rgba(255,255,255,0.8);">
+        <span class="text-lg sm:text-2xl">🔍</span> <span class="text-sm sm:text-base font-bold pr-1 drop-shadow-md">找景點</span>
     </button>
 
     <div id="searchModal" class="fixed inset-0 bg-stone-900/80 z-50 flex items-center justify-center hidden bdblur" onclick="if(event.target===this) this.classList.add('hidden')">
@@ -1615,5 +1615,7 @@
             }, 150);
         }
     </script>
+    <!-- FAB Spacer -->
+    <div class="h-20 w-full shrink-0"></div>
 </body>
 </html>
