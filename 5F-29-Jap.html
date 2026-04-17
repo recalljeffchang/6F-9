@@ -1097,6 +1097,14 @@
             shinagawa: WM('Prince Hotel Shinagawa and Wing Takanawa West (20230802073625).jpg'),
             ariake: WM('Ariake Garden 5F ARIAKE Diner 2024.jpg'),
             kichijoji: WM('Yoshinoya Kichijoji North 20150404.jpg'),
+            afuri: WM('Ramen,_Japanese_noodle_soup_by_iMorpheus.jpg'),
+            donut: WM('Donuts_(930907).jpg'),
+            ramen: WM('Tsukemen_by_neotintin_in_Hong_Kong.jpg'),
+            shakeshack: WM('Shake_Shack_burger.jpg'),
+            pelican: WM('Morning_Set_with_Thick_Toast.jpg'),
+            oyakodon: WM('Oyakodon,_a_rice_bowl_with_chicken_and_egg_(2013).jpg'),
+            tonkatsu: WM('Tonkatsu_001.jpg'),
+            coffee: WM('Latte_art_2.jpg'),
         };
 
         const reportData = {
@@ -1243,6 +1251,36 @@
                         ]
                     }
                 }
+                ,
+                G: {
+                    id: 'G',
+                    type: 'indoor',
+                    title: '方案 G：終極美食吃貨快閃',
+                    subtitle: '原宿 & 秋葉原 & 東京站',
+                    desc: '完全以「吃」為最高指導原則的硬派行程！挑戰知名排隊名店，適合體力充沛的吃貨家族。',
+                    recommended: false,
+                    chartData: [10, 4, 3, 7, 9, 2],
+                    schedule: {
+                        Fri: [
+                            { time: '15:30', item: 'AFURI 原宿', loc: 'AFURI Harajuku', toilet: '店內空間小', note: '柚子鹽拉麵清爽解膩，避開吃飯尖峰時段，減少長輩排隊時間。', img: IMG.afuri, mapUrl: 'https://maps.google.com/?q=AFURI+Harajuku', transit: { icon: '🚃', method: '電車', duration: '約 40 分鐘', note: '從羽田搭車前往原宿站' } },
+                            { time: '16:30', item: 'I\'m donut? 原宿店', loc: '原宿站對面', toilet: '原宿車站內', note: '超人氣排隊生甜甜圈！青少年派人排隊，長輩可至竹下通周邊陰涼處或咖啡店休息。', img: IMG.donut, mapUrl: 'https://maps.google.com/?q=I\'m+donut?+Harajuku', transit: { icon: '🚶', method: '步行', duration: '約 3 分鐘', note: '從 AFURI 步行回車站對面' } },
+                            { time: '19:00', item: '新宿晚餐對決', loc: '新宿南口', toilet: '百貨或沿路商家', note: '🍜 挑戰【風雲兒沾麵】：吧檯超擠背後靈排隊法 (極度考驗長輩) \n🍔 備案【Shake Shack】：戶外露臺座位，輕鬆吃高檔漢堡', img: IMG.ramen, mapUrl: 'https://maps.google.com/?q=Fuunji+Shinjuku', transit: { icon: '🚃', method: '山手線', duration: '約 10 分鐘', note: '從原宿站搭兩站到新宿' } },
+                            { time: '21:00', item: '🏨 返回飯店', loc: '羽田機場方向', toilet: '', note: '第一天吃滿吃爆，搭車回飯店休息準備隔天硬仗。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚃', method: '山手線轉京急', duration: '約 40 分鐘', note: '新宿出發回羽田' } }
+                        ],
+                        Sat: [
+                            { time: '09:00', item: 'Pelican Café 淺草', loc: 'Pelican Café', toilet: '店內', note: '老字號排隊炭烤吐司名店。吃飽後還可順便去門口買一條帶走。吃完可到淺草寺上香。', img: IMG.pelican, mapUrl: 'https://maps.google.com/?q=Pelican+Cafe+Asakusa', transit: { icon: '🚃', method: '淺草線', duration: '約 45 分鐘', note: '從羽田飯店搭淺草線免轉車達淺草或藏前' } },
+                            { time: '12:30', item: '鳥つね自然洞', loc: '末廣町 / 秋葉原', toilet: '店內', note: '中午去秋葉原周邊吃連續多年入選神級的「極品親子丼」，蛋液滑順長輩絕對愛！', img: IMG.oyakodon, mapUrl: 'https://maps.google.com/?q=Toritsune+Shizendo', transit: { icon: '🚃', method: '銀座線', duration: '約 15 分鐘', note: '淺草搭銀座線至末廣町' } },
+                            { time: '15:00', item: '東京車站血拚消化', loc: '東京一番街 / 新丸大樓', toilet: '商場寬敞廁所', note: '準備吃晚餐前，到東京車站地下街或新丸大樓、Kitte 等地逛街消化一下。', img: IMG.shopping, mapUrl: 'https://maps.google.com/?q=Tokyo+Station', transit: { icon: '🚃', method: '山手線', duration: '約 10 分鐘', note: '秋葉原搭山手線到東京車站' } },
+                            { time: '18:00', item: 'Katsukichi かつ吉', loc: '新丸之內大廈', toilet: '新丸大樓超豪華廁所', note: '舒適高級的日式無骨炸豬排！座位極為寬敞舒服，最適合長輩與小孩的終極晚餐。（務必預約）', img: IMG.tonkatsu, mapUrl: 'https://maps.google.com/?q=Katsukichi+Shin-Marunouchi', transit: { icon: '🚶', method: '步行', duration: '約 5 分鐘', note: '東京車站對面' } },
+                            { time: '20:30', item: '🏨 返回飯店', loc: '羽田機場', toilet: '', note: '吃飽喝足，從東京站搭直達車回羽田休息。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Hotel+Villa+Fontaine+Grand+Haneda+Airport', transit: { icon: '🚃', method: '京急線或單軌', duration: '約 30 分鐘', note: '東京站搭山手至品川換京急' } }
+                        ],
+                        Sun: [
+                            { time: '09:00', item: '猿田彦珈琲 吉祥寺', loc: '井之頭公園旁', toilet: '店內 / 公園', note: '清早殺去遙遠的西邊吉祥寺，在井之頭公園旁的猿田彦喝現沖咖啡，為美食之旅劃下句點。', img: IMG.coffee, mapUrl: 'https://maps.google.com/?q=Sarutahiko+Coffee+Kichijoji', transit: { icon: '🚃', method: '單軌轉山手轉中央線', duration: '約 1 小時 15 分', note: '羽田拉車非常遠，請注意登機時間！' } },
+                            { time: '11:00', item: '✈️ 準備前往機場', loc: '羽田空港', toilet: '', note: '雖然早上已跑太遠，還是得面對現實拉車回機場報到。', img: IMG.airport, mapUrl: 'https://maps.google.com/?q=Haneda+Airport+International+Terminal', transit: { icon: '🚃', method: '中央線轉山手轉單軌', duration: '約 1 小時 15 分', note: '吉祥寺回羽田' } }
+                        ]
+                    }
+                }
+
             }
         };
 
