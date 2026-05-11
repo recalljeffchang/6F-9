@@ -54,12 +54,17 @@
             box-shadow: 0 0 0 2px var(--primary-light);
         }
         .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
             opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* iOS Safari fallback: if JS fails, show content */
+        @media (prefers-reduced-motion: reduce) {
+            .fade-in { opacity: 1 !important; transform: none !important; }
         }
         .tab-active {
             border-bottom: 3px solid var(--primary-light);
@@ -146,8 +151,6 @@
             border-radius: 0 8px 8px 0;
             font-size: 0.82rem;
             color: #0369a1;
-            animation: fadeIn 0.3s ease-out forwards;
-            opacity: 0;
         }
         .transit-connector .transit-icon {
             font-size: 1.2rem;
@@ -196,7 +199,7 @@
 <body class="antialiased">
 
     <!-- Hero Header -->
-    <header class="hero-gradient text-white py-12 md:py-16 px-4 mb-10 fade-in">
+    <header class="hero-gradient text-white py-12 md:py-16 px-4 mb-10">
         <div class="max-w-6xl mx-auto text-center">
             <div class="inline-block bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium mb-6 border border-white/20">
                 ✈️ 2026/6/12（五）~ 6/14（日）
@@ -1449,18 +1452,26 @@
         }
 
         // Activate fade-in animations on scroll
-        const observer = new IntersectionObserver((entries) => {
+        // Uses threshold:0 so elements already in view fire immediately on iOS Safari
+        const fadeObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
+                    entry.target.classList.add('is-visible');
+                    fadeObserver.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0 });
 
         document.querySelectorAll('.fade-in').forEach(el => {
-            el.style.animationPlayState = 'paused';
-            observer.observe(el);
+            fadeObserver.observe(el);
         });
+
+        // Fallback: force-show all fade-in elements after 800ms in case observer fails (iOS Safari)
+        setTimeout(() => {
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.classList.add('is-visible');
+            });
+        }, 800);
     </script>
 </body>
 </html>
